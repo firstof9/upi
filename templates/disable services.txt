@@ -1,0 +1,50 @@
+cat <<'EOF_DISABLE_SERVICES' > /root/cpanel-disable-services
+#!/bin/bash
+for service in \
+   avahi-daemon \
+   avahi-dnsconfd \
+   bluetooth \
+   capi \
+   conman \
+   cpus \
+   irda \
+   lisa \
+   netplugd \
+   ifplugd \
+   NetworkManager \
+   NetworkManagerDispatcher \
+   netfs \
+   netplugd \
+   nfs \
+   nfslock \
+   nfsd \
+   ncsd \
+   oddjobd \
+   openvpn \
+   pcmcia \
+   pcscd \
+   portsentry \
+   postfix \
+   rawdevices \
+   rdisc \
+   rpcgssd \
+   rpcidmapd \
+   saslauthd \
+   tcsd \
+   vsftpd \
+   winbind \
+   wpa_supplicant \
+   xfs \
+   ypbind ;
+
+   do
+
+       echo "Disabling service: ${service}"
+       chkconfig ${service} off &>/dev/null
+       service ${service} stop &>/dev/null
+done
+EOF_DISABLE_SERVICES
+
+chmod 100 /root/cpanel-disable-services
+sh /root/cpanel-disable-services &>/dev/null
+rm -f /root/cpanel-disable-services &>/dev/null

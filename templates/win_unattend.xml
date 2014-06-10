@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='utf-8'?>
+<unattend xmlns='urn:schemas-microsoft-com:unattend'>
+    <servicing>
+        <package action='configure'>
+            <assemblyIdentity name='Microsoft-Windows-Foundation-Package' version='6.1.7601.17514' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='' />
+            <selection name='IIS-WebServerRole' state='true' />
+            <selection name='IIS-WebServer' state='true' />
+            <selection name='IIS-WebServerManagementTools' state='true' />
+            <selection name='IIS-ASPNET' state='false' />
+            <selection name='IIS-ISAPIExtensions' state='true' />
+            <selection name='IIS-ISAPIFilter' state='true' />
+            <selection name='IIS-NetFxExtensibility' state='false' />
+            <selection name='IIS-ApplicationDevelopment' state='true' />
+        </package>
+    </servicing>
+    <settings pass='windowsPE'>
+        <component name='Microsoft-Windows-International-Core-WinPE' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <SetupUILanguage>
+                <UILanguage>en-US</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>en-US</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UILanguageFallback>en-US</UILanguageFallback>
+            <UserLocale>en-US</UserLocale>
+        </component>
+        <component name='Microsoft-Windows-Setup' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <DiskConfiguration>
+                <WillShowUI>OnError</WillShowUI>
+                <Disk wcm:action='add'>
+                    <CreatePartitions>
+                        <CreatePartition wcm:action='add'>
+                            <Extend>true</Extend>
+                            <Type>Primary</Type>
+                            <Order>1</Order>
+                        </CreatePartition>
+                    </CreatePartitions>
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
+                    <ModifyPartitions>
+                        <ModifyPartition wcm:action='add'>
+                            <Format>NTFS</Format>
+                            <Extend>false</Extend>
+                            <Label>Windows</Label>
+                            <Letter>C</Letter>
+                            <Order>1</Order>
+                            <PartitionID>1</PartitionID>
+                            <Active>true</Active>
+                        </ModifyPartition>
+                    </ModifyPartitions>
+                </Disk>
+            </DiskConfiguration>
+            <ImageInstall>
+                <OSImage>
+                    <InstallTo>
+                        <DiskID>0</DiskID>
+                        <PartitionID>1</PartitionID>
+                    </InstallTo>
+                    <WillShowUI>OnError</WillShowUI>
+                    <InstallFrom>
+				<Path>\\%myip%\wim-repo\%location%</Path>
+                        <MetaData wcm:action='add'>
+                            <Key>/IMAGE/NAME</Key>
+                            <Value>%image_name%</Value>
+                        </MetaData>
+                    </InstallFrom>
+                </OSImage>
+            </ImageInstall>
+            <UserData>
+                <AcceptEula>true</AcceptEula>
+				<ProductKey>
+					<Key></Key>
+				</ProductKey>
+            </UserData>
+            <Restart>Shutdown</Restart>
+			<RunSynchronous>
+		   <!-- First synchronous command to run -->
+			   <RunSynchronousCommand>
+				  <Order>1</Order>
+				  <Path>\\MyNetworkShare\MyApplication.exe</Path>
+				  <Description>Download Tools Archive</Description>
+				  <Credentials>
+					 <Domain>FabrikamDomain</Domain>
+					 <UserName>MyUserName</UserName>
+					 <Password>MyPassword</Password>
+				  </Credentials>
+			   </RunSynchronousCommand>
+			</RunSynchronous>
+			<DynamicUpdate>
+				<Enable>true</Enable>
+				<WillShowUI>Never</WillShowUI>
+			</DynamicUpdate>
+        </component>
+        <component name='Microsoft-Windows-PnpCustomizationsWinPE' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <DriverPaths>
+                <PathAndCredentials wcm:action='add' wcm:keyValue='1'>
+                    <Path>\\%myip%\win-drivers\</Path>
+                </PathAndCredentials>
+            </DriverPaths>
+        </component>
+    </settings>
+    <settings pass='specialize'>
+        <component name='Microsoft-Windows-IE-InternetExplorer' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <Home_Page>http://www.codero.com</Home_Page>
+        </component>
+        <component name='Networking-MPSSVC-Svc' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <FirewallGroups>
+                <FirewallGroup wcm:action='add' wcm:keyValue='RemoteDesktop'>
+                    <Active>true</Active>
+                    <Group>Remote Desktop</Group>
+                    <Profile>all</Profile>
+                </FirewallGroup>
+            </FirewallGroups>
+        </component>
+        <component name='Microsoft-Windows-Shell-Setup' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <ComputerName>%hostname%</ComputerName>
+            <TimeZone>US Mountain Standard Time</TimeZone>
+        </component>
+        <component name='Microsoft-Windows-TerminalServices-LocalSessionManager' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <fDenyTSConnections>false</fDenyTSConnections>
+        </component>
+        <component name='Microsoft-Windows-TCPIP' processorArchitecture='wow64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <Interfaces>
+                <Interface wcm:action='add'>
+                    <Ipv4Settings>
+                        <DhcpEnabled>false</DhcpEnabled>
+                        <Metric>10</Metric>
+                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
+                    </Ipv4Settings>
+                    <Ipv6Settings>
+                        <DhcpEnabled>false</DhcpEnabled>
+                        <Metric>30</Metric>
+                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
+                    </Ipv6Settings>
+                    <Identifier>%mac%</Identifier>
+                    <Routes>
+                        <Route wcm:action='add'>
+                            <Identifier>2</Identifier>
+                            <Metric>10</Metric>
+                            <NextHopAddress>%gateway%</NextHopAddress>
+                            <Prefix>0.0.0.0/0</Prefix>
+                        </Route>
+                    </Routes>
+                    <UnicastIpAddresses>
+                        <IpAddress wcm:action='add' wcm:keyValue='1'>%ip%/24</IpAddress>
+                        <IpAddress wcm:action='add' wcm:keyValue='2'>%omac%</IpAddress>
+                    </UnicastIpAddresses>
+                </Interface>
+             </Interfaces>
+        </component>
+        <component name='Microsoft-Windows-DNS-Client' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <Interfaces>
+                <Interface wcm:action='add'>
+                    <DNSServerSearchOrder>
+                        <IpAddress wcm:action='add' wcm:keyValue='1'>%dns1%</IpAddress>
+                        <IpAddress wcm:action='add' wcm:keyValue='2'>%dns2%</IpAddress>
+                    </DNSServerSearchOrder>
+                    <DNSDomain></DNSDomain>
+                    <EnableAdapterDomainNameRegistration>true</EnableAdapterDomainNameRegistration>
+                    <Identifier>%mac%</Identifier>
+                    <DisableDynamicUpdate>true</DisableDynamicUpdate>
+                </Interface>
+            </Interfaces>
+            <UseDomainNameDevolution>true</UseDomainNameDevolution>
+            <DNSDomain></DNSDomain>
+        </component>
+        <component name='Microsoft-Windows-Deployment' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig'>
+            <RunSynchronous>
+                <RunSynchronousCommand>
+                    <Path>cmd /C reg add hklm\system\currentcontrolset\services	cpip6\parameters /v DisabledComponents /t REG_DWORD /d 255</Path>
+                    <Description>Disable IPv6</Description>
+                    <Order>10</Order>
+                    <WillReboot>Never</WillReboot>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+    </settings>
+	<settings pass='oobeSystem'>
+        <component name='Microsoft-Windows-International-Core' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <InputLocale>en-US</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
+            <UILanguageFallback>en-US</UILanguageFallback>
+        </component>
+        <component name='Microsoft-Windows-Shell-Setup' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+            <OOBE>
+                 <HideEULAPage>true</HideEULAPage>
+                 <ProtectYourPC>1</ProtectYourPC>
+            </OOBE>
+			<VisualEffects>
+				<SystemDefaultBackgroundColor>8</SystemDefaultBackgroundColor>
+			</VisualEffects>			
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>%password%</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+            </UserAccounts>
+            <TimeZone>US Mountain Standard Time</TimeZone>
+            <FirstLogonCommands>
+				<SynchronousCommand wcm:action="add">
+					<RequiresUserInput>false</RequiresUserInput>
+					<Order>1</Order>
+					<Description>Enable Auto Updates</Description>
+					<CommandLine>reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 4 /f</CommandLine>
+				</SynchronousCommand>			
+               <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <CommandLine>%systemdrive%\windows\system32\slmgr.vbs /skms 69.64.66.181:1688 </CommandLine>
+                    <Description>KMS server</Description>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>			
+                <SynchronousCommand wcm:action='add'>
+                  <CommandLine>C:\windows\system32\cscript.exe //B C:\windows\system32\slmgr.vbs /ato</CommandLine>
+                  <Description>Activate Windows</Description>
+                  <Order>10</Order>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action='add'>
+                  <CommandLine>cmd /C rmdir /s /q C:\Windows\Panther</CommandLine>
+                  <Description>Remove installation logs</Description>
+                  <Order>20</Order>
+                </SynchronousCommand>
+%controlpanel%
+            </FirstLogonCommands>
+			<OEMInformation>
+                <Manufacturer>Codero</Manufacturer>
+                <SupportHours>24hrs 7days a week</SupportHours>
+                <SupportURL>codero.com</SupportURL>
+                <SupportPhone>866-2-CODERO</SupportPhone>
+            </OEMInformation>
+        </component>
+    </settings>
+    <cpi:offlineImage cpi:source='wim:%location%#%version%' xmlns:cpi='urn:schemas-microsoft-com:cpi' />
+</unattend>

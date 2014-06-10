@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+	<installation mode="fresh" srtype="ext">
+		<primary-disk>sda</primary-disk>
+		<keymap>us</keymap>
+		<root-password>%password%</root-password>
+		<source type="nfs">%myip%:/tftpboot/boot/citrix/xenserver/%version%/iso/</source>
+		<driver-source type="nfs">%myip%:/tftpboot/boot/citrix/xenserver/drivers/</driver-source>
+		<admin-interface name="eth0" proto="static">
+		  <ip>%ip%</ip>
+		  <subnet-mask>%netmask%</subnet-mask>
+		  <gateway>%gateway%</gateway>
+		</admin-interface>
+		<timezone>America/Phoenix</timezone>
+		<nameserver>%dns1%</nameserver>
+		<nameserver>%dns2%</nameserver>
+		<hostname>%hostname%</hostname>
+		<time-config-method>ntp</time-config-method>
+		<ntp-server>0.pool.ntp.org</ntp-server>
+	</installation>
+
+<!-- TFTP file
+
+timeout 5
+NOESCAPE 1
+default vesamenu.c32
+ONTIMEOUT xenserver
+
+label xenserver
+   menu label Xen Server %version%
+   kernel mboot.c32
+   append boot/citrix/xenserver/%version%/xen.gz watchdog com1=115200,8n1i console=com1,tty --- boot/citrix/xenserver/%version%/vmlinuz root=/dev/ram0 console=tty0 console=ttyS0,115200n8 ramdisk_size=32758 answerfile=http://%myip%/%mac%.cfg install --- boot/citrix/xenserver/%version%/install.img
+
+
+--->
