@@ -32,7 +32,7 @@
             <FirstLogonCommands>
                <SynchronousCommand wcm:action="add">
                     <Order>2</Order>
-                    <CommandLine>%systemdrive%\windows\system32\slmgr.vbs /skms 69.64.66.181:1688 </CommandLine>
+                    <CommandLine>%systemdrive%\windows\system32\slmgr.vbs /skms <KMS_IP>:1688 </CommandLine>
                     <Description>KMS server</Description>
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>			
@@ -47,12 +47,6 @@
                   <Order>20</Order>
                 </SynchronousCommand>
             </FirstLogonCommands>
-			<OEMInformation>
-                <Manufacturer>Codero</Manufacturer>
-                <SupportHours>24hrs 7days a week</SupportHours>
-                <SupportURL>codero.com</SupportURL>
-                <SupportPhone>866-2-CODERO</SupportPhone>
-            </OEMInformation>
         </component>
     </settings>
     <settings pass='windowsPE'>
@@ -141,7 +135,7 @@
         </component>
         <component name='Microsoft-Windows-Shell-Setup' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
             <ComputerName>%hostname%</ComputerName>
-            <ProductKey>YRYJW-KR82R-GPCK8-V6CJM-R2FYK</ProductKey>
+            <ProductKey></ProductKey>
         </component>
         <component name='Microsoft-Windows-TerminalServices-LocalSessionManager' processorArchitecture='amd64' publicKeyToken='31bf3856ad364e35' language='neutral' versionScope='nonSxS' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
             <fDenyTSConnections>false</fDenyTSConnections>
