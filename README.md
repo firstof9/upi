@@ -14,6 +14,8 @@ Create installer script?
 
 Instructions for installing
 
+Add batch files for generating Windows PE image
+
 PREREQUISITES
 ===
 Apache
@@ -25,3 +27,5 @@ MySQL
 TFTPd
 
 Bootstrap (www.getbootstrap.com)
+
+Windows Assessment and Deployment Kit (ADK) (optional for generating Windows PE image)
