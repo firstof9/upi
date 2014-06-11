@@ -1221,13 +1221,13 @@ function main()
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 1</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x" value="69.64.66.11">
+										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x">
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 2</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x" value="69.64.66.10">
+										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x">
 									</div>
 								</div>
 								<button id="privnet" class="btn btn-warning" type="button" data-toggle="modal" data-target="#PrivNet">
