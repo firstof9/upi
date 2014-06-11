@@ -207,7 +207,7 @@
 				</SynchronousCommand>			
                <SynchronousCommand wcm:action="add">
                     <Order>2</Order>
-                    <CommandLine>%systemdrive%\windows\system32\slmgr.vbs /skms 69.64.66.181:1688 </CommandLine>
+                    <CommandLine>%systemdrive%\windows\system32\slmgr.vbs /skms <KMS_IP>:1688 </CommandLine>
                     <Description>KMS server</Description>
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>			
