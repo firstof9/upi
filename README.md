@@ -14,7 +14,7 @@ Create installer script?
 
 Instructions for installing
 
-PREREQUESTS
+PREREQUISITES
 ===
 Apache
 
