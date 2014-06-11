@@ -3,14 +3,19 @@ upi
 
 Universal PXE Installer
 
-TODO
+This system will automagicly generate TFTP boot files for facilitating the installation of your desiered OS over the network, completely automated (providing you have a proper templete setup).
 
-Upload pxelinux files
+
+===
+
+TODO
+===
+Create installer script?
 
 Instructions for installing
 
 PREREQUESTS
-
+===
 Apache
 
 PHP
