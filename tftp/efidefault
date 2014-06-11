@@ -1,0 +1,7 @@
+default=0
+timeout=60
+splashimage (nd)/codero_splash.xpm.gz
+
+title Hiren's Boot CD
+	kernel memdisk iso
+	initrd boot/hirens.bootcd.15.2.iso

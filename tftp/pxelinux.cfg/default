@@ -1,0 +1,33 @@
+default vesamenu.c32
+timeout 60
+ONTIMEOUT local
+PROMPT 0
+NOESCAPE 1
+INCLUDE menu.colors
+
+menu title PXE Boot Menu
+
+LABEL local
+MENU LABEL ^Local Hard Disk
+localboot 0
+TEXT HELP
+Boot to local hard disk
+ENDTEXT
+
+LABEL bios
+MENU LABEL ^BIOS Update
+kernel memdisk raw keeppxe
+append initrd=boot/netboot.img
+TEXT HELP
+!!! In Progress !!! Please do not use.
+ENDTEXT
+
+LABEL hiren
+MENU LABEL ^Hiren's Boot CD
+kernel memdisk
+append iso initrd=boot/hirens.bootcd.15.2.iso
+TEXT HELP
+Boot Hiren's Boot CD (long load)
+ENDTEXT
+
+
