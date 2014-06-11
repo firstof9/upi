@@ -14,7 +14,7 @@ Create installer script?
 
 Instructions for installing
 
-Add batch files for generating Windows PE image
+Update batch file for generating Windows PE image (auto inject startnet.cmd, installer.cmd, installer.vbs rename setup.exe)
 
 PREREQUISITES
 ===
