@@ -20,6 +20,8 @@ PREREQUISITES
 ===
 Apache
 
+NFS (optional for use with NFSISO installs on CentOS 6+)
+
 PHP
 
 MySQL
