@@ -223,12 +223,6 @@
                 </SynchronousCommand>
 %controlpanel%
             </FirstLogonCommands>
-			<OEMInformation>
-                <Manufacturer>Codero</Manufacturer>
-                <SupportHours>24hrs 7days a week</SupportHours>
-                <SupportURL>codero.com</SupportURL>
-                <SupportPhone>866-2-CODERO</SupportPhone>
-            </OEMInformation>
         </component>
     </settings>
     <cpi:offlineImage cpi:source='wim:%location%#%version%' xmlns:cpi='urn:schemas-microsoft-com:cpi' />
