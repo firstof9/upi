@@ -6,6 +6,7 @@
 :: Modified: 6/26/2013
 
 :: Added Driver injection
+:: Modified for use with ADK instead of WAIK
 :: by: Chris N
 :: 11/11/13
 
