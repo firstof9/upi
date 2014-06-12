@@ -18,3 +18,10 @@ mysql -- holds the database dump to be imported to your MySQL database
 templates -- Various automation template examples
 tftp -- These files go in your tftproot directory ie: /tftpboot or /var/tftproot
 windows scripts -- These are files that are to be added to your Windows PE boot image for automating Windows installs
+
+MODIFY FILES
+===
+
+Make sure to edit config.php in the html folder with login credentials for your MySQL username, password and database
+you would like to use.
+
