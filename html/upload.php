@@ -1,5 +1,9 @@
 <?PHP
 
+/*
+	Upload processor
+*/
+
 $osurl = $_REQUEST['osurl'];
 $wimurl = $_REQUEST['wimurl'];
 
