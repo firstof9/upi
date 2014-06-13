@@ -19,6 +19,8 @@ Instructions for installing
 
 Update batch file for generating Windows PE image (auto inject startnet.cmd, installer.cmd, installer.vbs rename setup.exe)
 
+Code cleanup
+
 PREREQUISITES
 ===
 Apache
