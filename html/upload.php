@@ -20,7 +20,7 @@ function db_connect()
 	mysqli_query($dbcnx,"set session wait_timeout=600"); // set session timeout to 600 seconds
 }
 
-$directory = "/tftpboot/boot/"; // base directory of uploaded files
+$directory = "/tftpboot/boot/"; // base directory of uploaded files (need to make this a setting in config.php)
 
 db_connect();
 
@@ -129,10 +129,7 @@ if ($osurl != "")
 	WIM file
 */
 
-else if ($wimurl != "")
-{
- echo "WIM install file added to database";
-}
+else if ($wimurl != "") { echo "WIM install file added to database"; }
 
 /*
 	Form file upload
