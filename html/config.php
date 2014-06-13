@@ -8,5 +8,9 @@ $mysql_username = "upi";
 $mysql_password = "password";
 //Name of the database to conenct to
 $mysql_database = "UPI";
+//TFTProot directory
+$tftproot = "/tftpboot/";
+//Hostname Suffix (ie: .whatever.your.domain.com)
+$hostnamesuffix = "";
 
 ?>
