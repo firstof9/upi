@@ -138,7 +138,7 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	
 	$config = $row['config'];
 	
-	$hostname = str_replace(".","-",$ip_address); // Generated from IP address and .phx.dedicated.codero.com
+	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
 	
 	// %myip% -- PXE Server IP
 	// %version% -- OS Version
@@ -146,8 +146,8 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - and adding .phx.dedicated.codero.com
-	// %nameserver% -- codero name servers (ie: 69.64.66.11,69.64.66.10)
+	// %hostname% -- hostname generated via IP replacing . with -
+	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	
 	//$password = hash('sha512',$password); // encrypt password
@@ -308,7 +308,7 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$is_dell = 0;
 	if (strpos(strtolower($_REQUEST['public_mac']),strtolower("D4:AE:52")) !== false) { $is_dell = 1; }
 	
-	$hostname = str_replace(".","-",$ip_address).".phx.dedicated.codero.com"; // Generated from IP address and .phx.dedicated.codero.com
+	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
 	
 	// %myip% -- PXE Server IP
 	// %version% -- OS Version
@@ -316,8 +316,8 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - and adding .phx.dedicated.codero.com
-	// %nameserver% -- codero name servers (ie: 69.64.66.11,69.64.66.10)
+	// %hostname% -- hostname generated via IP replacing . with -
+	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -370,7 +370,7 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	if (strpos(strtolower($_REQUEST['public_mac']),strtolower("D4:AE:52")) !== false) { $is_dell = 1; }
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
-	$hostname = str_replace(".","-",$ip_address).".phx.dedicated.codero.com"; // Generated from IP address and .phx.dedicated.codero.com
+	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
 	if ($flavor == "centos" || $flavor == "esxi") { $nameserver = "69.64.66.11,69.64.66.10"; } // static config nameserver IPs CSV format
 	else { $nameserver = $dns1.",".$dns2; }
 	
@@ -380,8 +380,8 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - and adding .phx.dedicated.codero.com
-	// %nameserver% -- codero name servers (ie: 69.64.66.11,69.64.66.10)
+	// %hostname% -- hostname generated via IP replacing . with -
+	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -536,8 +536,8 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - and adding .phx.dedicated.codero.com
-	// %nameserver% -- codero name servers (ie: 69.64.66.11,69.64.66.10)
+	// %hostname% -- hostname generated via IP replacing . with -
+	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -637,7 +637,7 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	if (strpos(strtolower($_REQUEST['public_mac']),strtolower("D4:AE:52")) !== false) { $is_dell = 1; }
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
-	$hostname = str_replace(".","-",$ip_address).".phx.dedicated.codero.com"; // Generated from IP address and .phx.dedicated.codero.com
+	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
 	
 	// %myip% -- PXE Server IP
 	// %version% -- OS Version
@@ -645,8 +645,8 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - and adding .phx.dedicated.codero.com
-	// %nameserver% -- codero name servers (ie: 69.64.66.11,69.64.66.10)
+	// %hostname% -- hostname generated via IP replacing . with - 
+	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
