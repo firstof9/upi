@@ -1,5 +1,5 @@
 MENU RESOLUTION 1024 768
-MENU BACKGROUND codero_linux_logo.png
+MENU BACKGROUND linux_logo.png
 TIMEOUT 30
 
 menu color border 37;40 #80FFFFFF #AA000000 std
