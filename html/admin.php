@@ -1026,7 +1026,7 @@ function main()
 								<p >%dns1% -- DNS Server 1 entered into provisioning form</p>
 								<p >%dns2% -- DNS Server 2 entered into provisioning form</p>
 								<p >%gateway% -- Gateway entered into provisioning form</p>
-								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>69-64-66-11.phx.dedicated.codero.com</em></p>
+								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>192-168-1-99</em></p>
 								<p >%ip% -- IP entered into provisioning form</p>
 								<p >%mac% -- altered MAC address replacing <strong>:</strong> with <strong>-</strong></p>
 								<p >%netmask% -- Subnet mask entered into provisioning form</p>
