@@ -7,6 +7,9 @@ This system will automagicly generate TFTP boot files for facilitating the insta
 
 
 ===
+DISCLAIMER
+===
+<strong><mark>This software is beta.</strong></mark>
 
 TODO
 ===
