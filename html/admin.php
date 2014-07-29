@@ -13,18 +13,17 @@
 
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = false;
+$g_admin = FALSE;
 date_default_timezone_set('America/Phoenix');
-$awesome = Array (); // Users with admin access!
 
-
-$services = array('httpd/httpd' => 'Apache Web Server',
-									'dhcpd' => 'DHCP Server',
-									'mysqld/mysqld' => 'MySQL Database Server',
-									'rpcbind' => 'Network File System (NFS)',
-									'smbd' => 'Samba File Server (Windows Shares)',
-									'sshd' => 'Secure Shell',
-									'tftpd' => 'Trivial File Transfer Protocol Daemon'
+$services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
+									'/var/run/dhcpd.pid' => 'DHCP Server',
+									'/var/run/mysqld/mysqld.pid' => 'MySQL Database Server',
+									'/var/run/rpcbind.pid' => 'Network File System (NFS)',
+									'/var/run/smbd.pid' => 'Samba File Server (Windows Shares)',
+									'/var/run/sshd.pid' => 'Secure Shell',
+									'/var/run/tftpd.pid' => 'Trivial File Transfer Protocol Daemon',
+									'/var/webmin/miniserv.pid' => 'Webmin'
 									);
 
 /*
@@ -62,7 +61,7 @@ function suite_names()
 	global $dbcnx;
 	echo '
 	<div class="panel panel-primary">
-		<div class="panel-heading"><h5 class="panel-title">Suite Mapping</h5></div>
+		<div class="panel-heading"><h5 class="panel-title">Suite Mapping (red = not available)</h5></div>
 	<table class="table table-bordered table-striped">
 <tr><th>Distro</th><th>Release Name</th><th>Version</th></tr>
 ';
@@ -72,12 +71,34 @@ function suite_names()
 	if (!$result) { die('Error retrieving suite table!'); }
 	while ($row = mysqli_fetch_array($result))
 	{
+		$class = "";
 		$distro = $row['distro'];
 		$version = $row['version'];
 		$suite = $row['name'];
-		echo "<tr><td>$distro</td><td>$suite</td><td>$version</td></tr>";
+		$supported = $row['supported'];
+		if ($supported == 0) { $class = "class=\"danger\""; }
+		echo "<tr $class><td>$distro</td><td>$suite</td><td>$version</td></tr>";
 	}
 	echo "</table></div>";
+}
+
+/*
+	List of currently mounted ISO files
+*/
+
+function mounted_isos()
+{
+	echo '
+	<table class="table table-bordered table-striped">
+';
+	$command = "mount | grep .iso | awk {'print $1'} | sed 's/.*\///'";
+	$isos = exec($command,$output);
+	
+	foreach ($output as $iso)
+	{
+		echo "<tr><td>$iso</td></tr>";
+	}
+	echo "</table>";
 }
 
 /*
@@ -205,7 +226,7 @@ function disk_status()
 
 function service_status($service)
 {
-	$command = "cat /var/run/$service.pid";
+	$command = "cat $service";
 	$pid = exec($command);
 	$command = "ps -p $pid";
 	$status = exec($command);
@@ -259,28 +280,54 @@ echo '
 
 function page_footer()
 {
-echo '
-	<script id="alertTemplate" type="text/plain">
-    <div class="alert alert-success">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-		 <span class="message"></span>
+
+	$data = array();
+	$legend = array();
+	$labels = array();
+	
+	db_connect();
+
+	$nquery = "SELECT `os` FROM `stats` ORDER BY `installed` DESC LIMIT 16";
+	$result = mysqli_query($dbcnx,$nquery);							
+
+	while ($nrow = mysqli_fetch_array($result))
+	{
+		$legend[] = $nrow[0];
+		$labels[] = $nrow[0];
+	}
+
+	$iquery = "SELECT `installed` FROM `stats` ORDER BY `installed` DESC LIMIT 16";
+	$result = mysqli_query($dbcnx,$iquery);
+
+	while ($irow = mysqli_fetch_array($result))
+	{
+		$data[] = $irow[0];
+	}	
+	$js_labels = json_encode($labels);
+	$js_data  = json_encode($data);
+
+echo "
+	<script id=\"alertTemplate\" type=\"text/plain\">
+    <div class=\"alert alert-success\">
+        <button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>
+		 <span class=\"message\"></span>
     </div>
 	</script>
-	<script id="progressbar" type="text/plain">
-	<div id="progressOverlay">
-		<p class="text-info">Uploading file...</p>
-		<div class="progress progress-striped active">
-			<div class="progress-bar" role="pogressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemanx="100" id="progressBar" style="width: 0%;">0%</div>
+	<script id=\"progressbar\" type=\"text/plain\">
+	<div id=\"progressOverlay\">
+		<p class=\"text-info\">Uploading file...</p>
+		<div class=\"progress progress-striped active\">
+			<div class=\"progress-bar\" role=\"pogressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"progressBar\" style=\"width: 0%;\">0%</div>
 		</div>
 	</div>
 	</script>	
 	</body>
-	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<script src="http://malsup.github.com/jquery.form.js"></script>
-	<script src="js/bootstrap.js"></script>
-	<script src="js/admin.js"></script>
+	<script src=\"https://code.jquery.com/jquery-latest.js\"></script>
+	<script src=\"js/jquery.form.js\"></script>
+	<script src=\"js/bootstrap.js\"></script>
+	<script src=\"js/admin.js\"></script>
 	</html>
-';
+";
 }
 
 function os_stats()
@@ -502,10 +549,9 @@ function remove_os()
 
 function main()
 {
-	sso_init();
 	auth_check();
 	page_header();
-	global $dbcnx, $SSO_UserData, $g_admin,$services;
+	global $dbcnx, $services, $g_admin;
 	db_connect(); // Connect to database
 	
 	/*
@@ -1053,7 +1099,7 @@ function main()
 				</div>
 			</div>			
 			<div id="statusPage" class="item">
-				<div class="row" style="padding-left: 5px; padding-top: 40px">
+				<div class="row" style="padding-left: 5px; padding-top: 40px;padding-bottom: 40px">
 					<div class="col-md-4">
 						<div class="panel panel-primary">
 							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>					
@@ -1083,6 +1129,11 @@ function main()
 						echo suite_names();
 						echo '
 					</div>
+					<div class="col-md-8">
+					<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#mBox">
+						<span class="glyphicon glyphicon-floppy-disk"></span> Show Mounted ISOs
+					</button>					
+					</div>
 					<nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
 						<div class="container">
 						';
@@ -1095,27 +1146,27 @@ function main()
 			</div>
 		</div>
 	</div>
-	<script id="alertTemplate" type="text/plain">
-    <div class="alert alert-success">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-		 <span class="message"></span>
-    </div>
-	</script>
-	<script id="progressbar" type="text/plain">
-	<div id="progressOverlay">
-		<p class="text-info">Uploading file...</p>
-		<div class="progress progress-striped active">
-			<div class="progress-bar" role="pogressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemanx="100" id="progressBar" style="width: 0%;">0%</div>
+	<div id="mBox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boxLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">	
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h3 id="myModalLabel">Mounted ISOs</h3>
+				</div>
+				<div class="modal-body">';
+					echo mounted_isos();
+					echo '
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-success" id="close" data-dismiss="modal">
+						<span class="glyphicon glyphicon-thumbs-up"></span> Close
+					</button>
+				</div>
+			</div>
 		</div>
-	</div>
-	</script>	
-	</body>
-	<script src="https://code.jquery.com/jquery-1.11.0.js"></script>
-	<script src="js/jquery.form.min.js"></script>
-	<script src="js/bootstrap.js"></script>
-	<script src="js/admin.js"></script>
-	</html>
+	</div>						
 	';
+	page_footer();
 }
 
 switch($mode) {

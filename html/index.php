@@ -4,8 +4,11 @@
 	
 	TODO:
 	
-		Add ipmi controls
+				Create global rewrite function to replace the variables
 				
+	UPDATE:
+				
+				Added auto fix dir permissions function to help resolve errors automagicly
 */
 
 /* 
@@ -15,17 +18,56 @@
 $version = "0.2.17";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = false;
+$g_admin = FALSE;
 date_default_timezone_set('America/Phoenix');
-$admins = Array (); // Users with admin access
 
 /*
 	SSO Functions here
 */
-
 function auth_check() {
     $g_admin = true;
 }
+
+/*
+	Rewrite function to replace variables in the automation template
+*/
+
+function rewrite_template($version,$ip,$mac,$myip,$netmask,$gateway,$hostname,$namserver,$password,$diskpart,$dns1,$dns2,$location,$omac,$cmd,$privatenet,$pre,$suite,$config)
+{
+	$config = str_replace("%version%",$version,$config); // replace the %version%
+	$config = str_replace("%ip%",$ip_address,$config); // replace the %ip%
+	$config = str_replace("%mac%",strtolower($mac),$config); // replace the %mac%
+	$config = str_replace("%myip%",$myip,$config); // replace the %myip%
+	$config = str_replace("%netmask%",$netmask,$config); // replace the %netmask%
+	$config = str_replace("%gateway%",$gateway,$config); // replace the %gateway%
+	$config = str_replace("%hostname%",$hostname,$config); // replace the %hostname%
+	$config = str_replace("%nameserver%",$nameserver,$config); // replace the %nameserver%
+	$config = str_replace("%password%",$password,$config); // replace the %password%
+	$config = str_replace("%diskpart%",$diskpart,$config); // replace the %diskpart%
+	$config = str_replace("%dns1%",$dns1,$config); // DNS Server 1
+	$config = str_replace("%dns2%",$dns2,$config); // DNS Server 2	
+	$config = str_replace("%location%",$location,$config); // WIM File with path ie: \\WDS-04\Win2k12STDR2.wim
+	$config = str_replace("%omac%",$omac,$config); // replace the %version%
+	$config = str_replace("%controlpanel%",$cmd,$config); // replace the %controlpanel%	
+	$config = str_replace("%privatenet%",$privatenet,$config); // replace the %privatenet%	
+	$config = str_replace("%pre%",$pre,$config); // replace %pre%
+	$config = str_replace("%suite%",$suite,$config); // replace the %suite%
+}
+
+/*
+	Auto repair directory access errors
+*/
+
+function auto_fix()
+{
+	$output = array();
+	exec("ssh root@localhost  /root/fix_everything.sh",$output);
+	return $output;
+}
+
+/*
+	HTML header data
+*/
 
 function page_header()
 {
@@ -147,7 +189,7 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
+	// %nameserver% -- name servers (ie: 8.8.8.8,8.8.4.4)
 	// %password% -- password variable
 	
 	//$password = hash('sha512',$password); // encrypt password
@@ -278,8 +320,12 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		error_msg("Unable to write file: ".$filename);
-		exit();
+		auto_fix(); // attempt to fix errors
+		if (fwrite($fp,$config) == FALSE)
+		{
+			error_msg("Unable to write file: ".$filename);
+			exit();
+		}
 	}
 
 	// File write success!
@@ -317,7 +363,7 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
+	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -339,8 +385,12 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		error_msg("Unable to write file: ".$filename);
-		exit();
+		auto_fix(); // attempt to fix errors
+		if (fwrite($fp,$config) == FALSE)
+		{
+			error_msg("Unable to write file: ".$filename);
+			exit();
+		}
 	}
 
 	// File write success!
@@ -371,8 +421,7 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
-	if ($flavor == "centos" || $flavor == "esxi") { $nameserver = "69.64.66.11,69.64.66.10"; } // static config nameserver IPs CSV format
-	else { $nameserver = $dns1.",".$dns2; }
+	$nameserver = $dns1.",".$dns2;
 	
 	// %myip% -- PXE Server IP
 	// %version% -- OS Version
@@ -381,7 +430,7 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
+	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -399,6 +448,8 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	$config = str_replace("%nameserver%",$nameserver,$config); // replace the %nameserver%
 	$config = str_replace("%password%",$password,$config); // replace the %password%
 	$config = str_replace("%diskpart%",$diskpart,$config); // replace the %diskpart%
+	$config = str_replace("%dns1%",$dns1,$config); // DNS Server 1
+	$config = str_replace("%dns2%",$dns2,$config); // DNS Server 2	
 	
 	/* 
 		Control Pannel Install Script(s)
@@ -477,8 +528,12 @@ echo 'netmask $priv_netmask' >> /etc/network/interfaces; \
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		error_msg("Unable to write file: ".$filename);
-		exit();
+		auto_fix(); // attempt to fix errors
+		if (fwrite($fp,$config) == FALSE)
+		{
+			error_msg("Unable to write file: ".$filename);
+			exit();
+		}
 	}
 	
 	// File write success!
@@ -537,7 +592,7 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
+	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -551,6 +606,8 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 	$config = str_replace("%nameserver%",$nameserver,$config); // replace the %nameserver%
 	$config = str_replace("%password%",$password,$config); // replace the %password%
 	$config = str_replace("%diskpart%",$diskpart,$config); // replace the %diskpart%
+	$config = str_replace("%dns1%",$dns1,$config); // DNS Server 1
+	$config = str_replace("%dns2%",$dns2,$config); // DNS Server 2	
 	
 	//if ($is_dell || $is_dual == 0) { $config = str_replace("eth1","eth0",$config); } // replace eth1 with eth0 (broadcom NIC for Dell servers)
 	
@@ -605,9 +662,12 @@ echo 'netmask $priv_netmask' >> /target/etc/network/interfaces; \
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		error_msg("Unable to write file: ".$filename);
-		main();
-		exit();
+		auto_fix(); // attempt to fix errors
+		if (fwrite($fp,$config) == FALSE)
+		{
+			error_msg("Unable to write file: ".$filename);
+			exit();
+		}
 	}
 	
 	// File write success!
@@ -645,8 +705,8 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - 
-	// %nameserver% -- dns name servers (ie: 8.8.8.8 8.8.4.4)
+	// %hostname% -- hostname generated via IP replacing . with -
+	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -681,8 +741,12 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		error_msg("Unable to write file: ".$filename);
-		exit();
+		auto_fix(); // attempt to fix errors
+		if (fwrite($fp,$config) == FALSE)
+		{
+			error_msg("Unable to write file: ".$filename);
+			exit();
+		}
 	}
 	// File write success!
 	fclose($fp); // close the file
@@ -758,7 +822,14 @@ function verify()
 	if ($is_gpt == 1) { $fp = fopen('/tftpboot/'.strtoupper($fmac),'w'); } // write the UEFI tftpboot file (grub.conf formatting)
 	else { $fp = fopen('/tftpboot/pxelinux.cfg/'.$fmac,'w'); } // create file if doesn't exist and set for writing only
 	
-	if (!$fp) { echo "Unable to write TFTP file!"; exit(); }
+	if (!$fp) 
+	{ 
+		auto_fix();
+		if ($is_gpt == 1) { $fp = fopen('/tftpboot/'.strtoupper($fmac),'w'); } // write the UEFI tftpboot file (grub.conf formatting)
+		else { $fp = fopen('/tftpboot/pxelinux.cfg/'.$fmac,'w'); } // create file if doesn't exist and set for writing only
+		
+		if (!$fp) { echo "Unable to write TFTP file!";  exit();  }
+	}
 	
 	/*
 	// Variables to replace via str_replace:
@@ -796,12 +867,25 @@ function verify()
 	
 	if (fwrite($fp,$template) == FALSE)
 	{
-		error_msg("Unable to write PXE boot file");
-		exit();
+		auto_fix(); // attempt to auto repair dir permissions
+		if (fwrite($fp,$template) == FALSE)
+		{
+			error_msg("Unable to write PXE boot file");
+			exit();
+		}
 	}
 	
 	// File write success!
 	fclose($fp); // close the file
+	
+	$pmac = explode(":",$_REQUEST['public_mac']);
+	$pmac[5] = PrivMac($pmac[5]);
+	$privmac = strtolower(implode(":",$pmac));
+	
+	$second_file = strtolower("01-".str_replace(":","-",$privmac));
+	
+	if ($is_gpt == 1) { exec("cp /tftpboot/".strtoupper($fmac)." /tftpboot/".strtoupper($second_file)); } 
+	else { exec("cp /tftpboot/pxelinux.cfg/$fmac /tftpboot/pxelinux.cfg/$second_file"); } 
 	
 	if ($trow['use_ks'])
 	{
@@ -832,7 +916,7 @@ function verify()
 					if ($_REQUEST['is_gpt'] == 1 && $x == 1 && $y == 0)
 					{
 						// Add GPT BIOS Boot Partition and required /boot/efi directory
-						$diskpart .= "part /boot/efi/ --fstype vfat 200\n";
+						$diskpart .= "part /boot/efi/ --fstype=efi --size=200\n";
 					}
 					if ($_REQUEST['is_lvm'] == 1 && $x == 1)
 					{
