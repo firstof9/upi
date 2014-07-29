@@ -13,7 +13,7 @@ DISCLAIMER
 
 TODO
 ===
-Create installer script - In progress
+Create installer script - <strong>In progress</strong>
 
 Instructions for installing
 
