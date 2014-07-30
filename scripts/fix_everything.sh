@@ -1,6 +1,6 @@
 #!/bin/bash
-$HTMLDIR=/var/www/html
-$TFTPDIR=/tftpboot
+HTMLDIR=/var/www/html
+TFTPDIR=/tftpboot
 
 logger -p daemon.info "Fixing everything!"
 echo -e "Fixing everything!\n"
