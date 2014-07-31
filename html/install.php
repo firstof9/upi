@@ -22,7 +22,7 @@ function import_sql()
 	global $dbcnx;
 	db_connect();
 	
-	$filename = "sql/UPI.sql";
+	$filename = "mysql/UPI.sql";
 	
 	// Temporary variable, used to store current query
 	$templine = '';
