@@ -1,4 +1,4 @@
-<? PHP
+<?PHP
 /*
 	Universal PXE Installer - Installer? :P
 	
@@ -13,10 +13,40 @@ function db_connect()
 {
 	global $dbcnx;
 	require('config.php');
-	$dbcnx = mysqli_connect($mysql_hostname, $mysql_username, $mysql_password,$mysql_database) or die("&error1=".mysqli_error());
+	$dbcnx = mysqli_connect($mysql_hostname, $mysql_username, $mysql_password,$mysql_database) or die("Error connecting to MySQL server: ".mysqli_error());
 	mysqli_query($dbcnx,"set session wait_timeout=600"); // set session timeout to 600 seconds
 }
 
+function import_sql()
+{
+	global $dbcnx;
+	db_connect();
+	
+	$filename = "sql/UPI.sql";
+	
+	// Temporary variable, used to store current query
+	$templine = '';
+	// Read in entire file
+	$lines = file($filename);
+	// Loop through each line
+	foreach ($lines as $line)
+	{
+		// Skip it if it's a comment
+		if (substr($line, 0, 2) == '--' || $line == '') { continue; }
+
+		// Add this line to the current segment
+		$templine .= $line;
+		// If it has a semicolon at the end, it's the end of the query
+		if (substr(trim($line), -1, 1) == ';')
+		{
+			// Perform the query
+			mysqli_query($dbcnx,$templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysqli_error() . '<br /><br />');
+			// Reset temp variable to empty
+			$templine = '';
+		}
+	}
+	 echo "Tables imported successfully";
+}
 
 function page_header()
 {
@@ -64,11 +94,11 @@ echo '
 	</div>
 	</script>
 	</body>
-	<script src="https://code.jquery.com/jquery-1.11.0.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 	<script src="js/bootstrap.js"></script>
 	<script src="js/jquery.validate.min.js"></script>
 	<script src="js/additional-methods.min.js"></script>
-	<script src="js/app.js"></script>
+	<script src="js/install.js"></script>
 	</html>
 	';
 }
@@ -76,19 +106,21 @@ echo '
 function main ()
 {
 	require('config.php');
+	page_header();
+	
 	echo "
 		<div class=\"row center-block\">
-			<form class=\"form-horizontal\" id=\"requiredVariables\" name=\"requiredVariables\" action=\"index.php\" method=\"post\" role=\"form\">
+			<form class=\"form-horizontal\" id=\"installForm\" name=\"installForm\" action=\"install.php\" method=\"post\" role=\"form\">
 				<div class=\"row\" style=\"padding-left: 5px; padding-top: 10px\">
 					<div class=\"col-xs-6 col-md-6\">
 						<div class=\"panel panel-primary\">
-							<div class=\"panel-heading\"><h2 class=\"panel-title\"><strong>Installer</strong></h2></div>
+							<div class=\"panel-heading\"><h2 class=\"panel-title\"><strong>Installer </strong></h2></div>
 							<div class=\"panel-body\">
 								<div class=\"form-group\">
 									<label class=\"control-label col-sm-4 col-xs-5\">mySQL Server</label>
 									<div class=\"col-sm-8 col-lg-8\">
 										<div class=\"input-group\">
-											<input type=\"text\" id=\"mysql_server\" class=\"form-control\" name=\"mysql_server\" placeholder=\"localhost\" value=\"$mysql_hostname\">
+											<input type=\"text\" id=\"mysql_server\" class=\"form-control\" name=\"mysql_server\" placeholder=\"localhost\" value=\"$mysql_hostname\" disabled>
 										</div>
 									</div>
 								</div>
@@ -96,7 +128,7 @@ function main ()
 									<label class=\"control-label col-sm-4 col-xs-5\">mySQL User</label>
 									<div class=\"col-sm-8 col-lg-8\">
 										<div class=\"input-group\">
-											<input type=\"text\" id=\"mysql_user\" class=\"form-control\" name=\"mysql_user\" placeholder=\"mySQL username\" value=\"$mysql_username\">
+											<input type=\"text\" id=\"mysql_user\" class=\"form-control\" name=\"mysql_user\" placeholder=\"mySQL username\" value=\"$mysql_username\" disabled>
 										</div>
 									</div>
 								</div>
@@ -104,7 +136,7 @@ function main ()
 									<label class=\"control-label col-sm-4 col-xs-5\">mySQL Password</label>
 									<div class=\"col-sm-8 col-lg-8\">
 										<div class=\"input-group\">
-											<input type=\"text\" id=\"mysql_password\" class=\"form-control\" name=\"mysql_password\" placeholder=\"mySQL password\" value=\"$mysql_password\">
+											<input type=\"text\" id=\"mysql_password\" class=\"form-control\" name=\"mysql_password\" placeholder=\"mySQL password\" value=\"$mysql_password\" disabled>
 										</div>
 									</div>
 								</div>
@@ -112,20 +144,39 @@ function main ()
 									<label class=\"control-label col-sm-4 col-xs-5\">mySQL Database</label>
 									<div class=\"col-sm-8 col-lg-8\">
 										<div class=\"input-group\">
-											<input type=\"text\" id=\"mysql_database\" class=\"form-control\" name=\"mysql_database\" placeholder=\"mySQL database\" value=\"$mysql_database\">
+											<input type=\"text\" id=\"mysql_database\" class=\"form-control\" name=\"mysql_database\" placeholder=\"mySQL database\" value=\"$mysql_database\" disabled>
 										</div>
 									</div>
 								</div>								
-								<button class="btn btn-success pull-right" id="next">Next <span class="glyphicon glyphicon-chevron-right"></span></button>
+								<button class=\"btn btn-success pull-right\" id=\"next\">Install <span class=\"glyphicon glyphicon-wrench\"></span></button>
 							</div>
+						</div>
+					</div>
+					<div class=\"col-md-6\">
+						<div class=\"panel panel-primary\">
+						<div class=\"panel-heading\"><h2 class=\"panel-title\"><strong>Instructions</strong></h2></div>
+						<div class=\"panel-body\">							
+							<p class=\"text-info\">If this data is not correct please edit your config.php file with the correct data.</p>
 						</div>
 					</div>
 				</div>
 			</form>
 		</div>
 	";
+	page_footer();
 }
 
-main(); // start the script
+switch($mode) {
+
+	case "database":
+	import_sql();
+	break;
+	
+	default:
+	main();
+	break;
+}
+
+
 
 ?>
