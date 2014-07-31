@@ -1,11 +1,12 @@
 #!/bin/bash
+TFTPDIR=/tftpboot
 
 if [ $1 == "" ]; then
 	echo "Missing version number"
 	exit 1
 fi
 
-DISTPATH="/tftpboot/boot/debian/$1"
+DISTPATH=$TFTPDIR/boot/debian/$1
 
 # Download the latest installer
 cd $DISTPATH

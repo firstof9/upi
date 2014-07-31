@@ -1,12 +1,13 @@
 #!/bin/bash
+TFTPDIR=/tftpboot
 
 if [ $1 == "" ]; then
 	echo "Missing version number"
 	exit 1
 fi
 
-cp /tftpboot/boot/esxi/$1/iso/boot.cfg /tftpboot/boot/esxi/$1/
-sed -i.bak s,/,iso/,g /tftpboot/boot/esxi/$1/boot.cfg
+cp $TFTPDIR/boot/esxi/$1/iso/boot.cfg $TFTPDIR/boot/esxi/$1/
+sed -i.bak s,/,iso/,g $TFTPDIR/boot/esxi/$1/boot.cfg
 
 exportfs -r
 
