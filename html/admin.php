@@ -13,8 +13,11 @@
 
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = FALSE;
+$g_admin = false;
+$SSO_UserData = array();
 date_default_timezone_set('America/Phoenix');
+$awesome = Array ('dtopel', 'chrisn', 'dons'); // Users with admin access!
+
 
 $services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
 									'/var/run/dhcpd.pid' => 'DHCP Server',
@@ -32,24 +35,6 @@ $services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
 
 function auth_check() {
     $g_admin = true;
-}
-
-function formatSize($bytes)
-{
-	$types = array( 'B', 'KB', 'MB', 'GB', 'TB' );
-	for( $i = 0; $bytes >= 1024 && $i < ( count( $types ) -1 ); $bytes /= 1024, $i++ );
-	return( round( $bytes, 2 ) . " " . $types[$i] );
-}
-
-function getSystemMemInfo() 
-{       
-    $data = explode("\n", file_get_contents("/proc/meminfo"));
-    $meminfo = array();
-    foreach ($data as $line) {
-    	list($key, $val) = explode(":", $line);
-    	$meminfo[$key] = trim($val);
-    }
-    return $meminfo;
 }
 
 /* 
@@ -137,14 +122,11 @@ function cpu_load()
 	
 	$class = "-primary";
 	
-	if ($load5 > 0.75) { $class = "-danger"; }
-	else if ($load5 > 0.5) { $class = "-warning"; }
-	
 	echo "
-	<div class=\"panel panel$class\">
+	<div class=\"panel panel$class\" id=\"cpu_load\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>CPU Load</strong></h5></div>
 		<div class=\"panel-body\">
-			<p class=text$class>$load5 / $load10 / $load15</p>
+			<p class=text$class>Loading...</p>
 		</div>
 	</div>
 	";
@@ -155,31 +137,15 @@ function cpu_load()
 */
 function ram_status()
 {
-	$memory = getSystemMemInfo();
-	
-	$temp = explode(" ",$memory["MemFree"]);
-	$mem_free = $temp[0] * 1000;
-	$temp = explode(" ",$memory["MemTotal"]);
-	$mem_total = $temp[0] * 1000;
-	$mem_used = $mem_total - $mem_free;
-	$mem_per =  sprintf('%.2f',($mem_used / $mem_total) * 100);
-	
-	$temp = explode(" ",$memory["Cached"]);
-	$mem_cache = $temp[0] *1000;
-	
-	$mc = formatSize($mem_cache);
-	$mu = formatSize($mem_used);
-	$mt = formatSize($mem_total);
-	
 	$class = "progress-bar";
 		
 	echo "
-	<div class=\"panel panel-primary\">
+	<div class=\"panel panel-primary\" id=\"ram_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>Memory Usage</strong></h5></div>
 		<div class=\"panel-body\">	
-			<p class=\"text-info\">$mu of $mt (Cached: $mc)</p>
+			<p class=\"text-info\">Loading...</p>
 			<div class=\"progress progress-striped\">
-				<div class=\"$class\" role=\"progressbar\" aria-valuenow=\"$mem_per\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: $mem_per%;\">$mem_per%</div>
+				<div class=\"$class\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: 100%;\">Loading...</div>
 			</div>
 		</div>
 	</div>
@@ -192,47 +158,20 @@ function ram_status()
 
 function disk_status()
 {
-	$disk_free = disk_free_space("/");
-	$disk_total = disk_total_space("/");
-	$disk_used = $disk_total - $disk_free;
-	$disk_per =  sprintf('%.2f',($disk_used / $disk_total) * 100);
-	
-	$du = formatSize($disk_used);
-	$dt = formatSize($disk_total);
-	
-	$class = "-success";
-	
-	if ($disk_per > 75.00) { $class = "-danger"; }
-	else if ($disk_per > 50.00) { $class = "-warning"; }
-		
+	$class = "-primary";
+
 	echo "
-	<div class=\"panel panel$class\">
+	<div class=\"panel panel$class\" id=\"disk_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>Disk Usage</strong></h5></div>
 		<div class=\"panel-body\">		
-			<p class=\"text-info\">$du of $dt</p>
+			<p class=\"text-info\">Loading....</p>
 			<div class=\"progress progress-striped\">
-				<div class=\"progress-bar progress-bar$class\" role=\"progressbar\" aria-valuenow=\"$disk_per\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: $disk_per%;\">$disk_per%</div>
+				<div class=\"progress-bar progress-bar$class\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: 100%;\">Loading....</div>
 			</div>
 		</div>
 	</div>
 	";
 	
-}
-
-
-/*
-	Return the status of requested service via PID lookup
-*/
-
-function service_status($service)
-{
-	$command = "cat $service";
-	$pid = exec($command);
-	$command = "ps -p $pid";
-	$status = exec($command);
-	
-	if (!isset($status[1])) { return false; }
-	else { return true; }
 }
 
 function page_header()
@@ -280,7 +219,7 @@ echo '
 
 function page_footer()
 {
-
+	global $dbcnx;
 	$data = array();
 	$legend = array();
 	$labels = array();
@@ -549,9 +488,10 @@ function remove_os()
 
 function main()
 {
+	sso_init();
 	auth_check();
 	page_header();
-	global $dbcnx, $services, $g_admin;
+	global $dbcnx, $g_admin,$services;
 	db_connect(); // Connect to database
 	
 	/*
@@ -1103,17 +1043,8 @@ function main()
 					<div class="col-md-4">
 						<div class="panel panel-primary">
 							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>					
-							<table class="table table-bordered">
-							<tr><th>Status</th><th>Service</th></tr>
-						';
-								while (list ($service, $description) = each($services))
-								{
-									$status = service_status($service);
-									//$status = true;
-									if ($status) { echo "<tr class=\"success\"><td><img src=\"greendot.png\" height=32 width=32></td><td>{$description}</td></tr>"; }
-									else { echo "<tr class=\"danger\"><td><img src=\"reddot.png\" height=32 width=32></td><td>{$description}</td></tr>"; }
-								}
-								echo '</table>
+							<table class="table table-bordered" id="services">
+							</table>
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -1134,7 +1065,7 @@ function main()
 						<span class="glyphicon glyphicon-floppy-disk"></span> Show Mounted ISOs
 					</button>					
 					</div>
-					<nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
+					<nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation" id="timestamp">
 						<div class="container">
 						';
 							$timestamp = date("m-d-Y H:i T");

@@ -7,8 +7,56 @@ var App = {
 		$('[data-toggle=tooltip]').tooltip();
 		$(".carousel").carousel({interval: false});
 		this.watchNavBar();
+		this.updateStatsData();
 		
     },
+	
+	/*
+		Update stats data
+	*/
+	
+	updateStatsData:function() {
+		setInterval(function() {
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "cpu"}),
+				success: function(data) {
+					$("#cpu_load").html(data);
+				},
+			});
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "disk"}),
+				success: function(data) {
+					$("#disk_status").html(data);
+				},
+			});
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "ram"}),
+				success: function(data) {
+					$("#ram_status").html(data);
+				},
+			});
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "services"}),
+				success: function(data) {
+					$("#services").html(data);
+				},
+			});			
+			var d = new Date();
+			$("#timestamp div.container p.navbar-text").html("<em><strong>Refreshed at "+d.toUTCString()+" </strong></em>");
+		},3000);
+	},
 	
 	/*
 	Monitor Nav bar clicks
@@ -196,6 +244,7 @@ var App = {
 				data:  ({mode: "clone",id : id}),
 				url: 'db_lib.php'
 			});
+			location.reload(true);
 		});
 		$('#modifyForm').submit(function(ev) {
 			ev.preventDefault();
