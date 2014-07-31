@@ -124,7 +124,7 @@ function cpu_load()
 	
 	echo "
 	<div class=\"panel panel$class\" id=\"cpu_load\">
-		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>CPU Load</strong></h5></div>
+		<div class=\"panel-heading\"><h5 class=\"panel-title\">CPU Load</h5></div>
 		<div class=\"panel-body\">
 			<p class=text$class>Loading...</p>
 		</div>
@@ -141,7 +141,7 @@ function ram_status()
 		
 	echo "
 	<div class=\"panel panel-primary\" id=\"ram_status\">
-		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>Memory Usage</strong></h5></div>
+		<div class=\"panel-heading\"><h5 class=\"panel-title\">Memory Usage</h5></div>
 		<div class=\"panel-body\">	
 			<p class=\"text-info\">Loading...</p>
 			<div class=\"progress progress-striped\">
@@ -162,7 +162,7 @@ function disk_status()
 
 	echo "
 	<div class=\"panel panel$class\" id=\"disk_status\">
-		<div class=\"panel-heading\"><h5 class=\"panel-title\"><strong>Disk Usage</strong></h5></div>
+		<div class=\"panel-heading\"><h5 class=\"panel-title\">Disk Usage</h5></div>
 		<div class=\"panel-body\">		
 			<p class=\"text-info\">Loading....</p>
 			<div class=\"progress progress-striped\">
