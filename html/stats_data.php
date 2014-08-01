@@ -13,7 +13,7 @@ $services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
 									'/var/run/sshd.pid' => 'Secure Shell',
 									'/var/run/tftpd.pid' => 'Trivial File Transfer Protocol Daemon',
 									'/var/webmin/miniserv.pid' => 'Webmin'
-									);
+);
 
 /*
 	Return the status of requested service via PID lookup
@@ -29,7 +29,25 @@ function service_status($service)
 	if (!isset($status[1])) { return false; }
 	else { return true; }
 }									
-									
+	
+/*
+	List of currently mounted ISO files
+*/
+
+function mounted_isos()
+{
+	echo '
+	<table class="table table-bordered table-striped">
+';
+	$command = "mount | grep .iso | awk {'print $1'} | sed 's/.*\///'";
+	$isos = exec($command,$output);
+	
+	foreach ($output as $iso)
+	{
+		echo "<tr><td>$iso</td></tr>";
+	}
+	echo "</table>";
+}	
 									
 function getSystemMemInfo() 
 {       
@@ -49,6 +67,7 @@ function formatSize($bytes)
 	return( round( $bytes, 2 ) . " " . $types[$i] );
 }
 
+
 /*
 	Services Status
 */
@@ -56,7 +75,7 @@ function formatSize($bytes)
 function services_check()
 {
 	global $services;
-	echo '<tr><th>Status</th><th>Service</th></tr>';
+	echo '<div class="panel-heading"><h3 class="panel-title">Services</h3></div><table class="table table-bordered"><tr><th>Status</th><th>Service</th></tr>';
 	while (list ($service, $description) = each($services))
 	{
 		$status = service_status($service);
@@ -64,8 +83,8 @@ function services_check()
 		if ($status) { echo "<tr class=\"success\"><td><img src=\"greendot.png\" height=32 width=32></td><td>{$description}</td></tr>"; }
 		else { echo "<tr class=\"danger\"><td><img src=\"reddot.png\" height=32 width=32></td><td>{$description}</td></tr>"; }
 	}	
+	echo '</table></div>';
 }
-
 
 /* 
 	Display CPU load
@@ -159,6 +178,10 @@ function disk_status()
 
 switch($mode) {
 
+	case "isos":
+	mounted_isos();
+	break;
+	
 	case "services":
 	services_check();
 	break;

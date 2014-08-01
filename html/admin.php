@@ -5,10 +5,6 @@
 
 	TODO:
 				Trashed flag will be similar to recycle bin entries will be stored for XX days and auto wiped unless recovered.
-
-	Notes:
-				mount | grep .iso | awk {'print $1'} | sed 's/.*\///'
-				for currently mounted ISO files
 */
 
 $mode = $_REQUEST['mode'];
@@ -16,18 +12,6 @@ $dbcnx = 0;
 $g_admin = false;
 $SSO_UserData = array();
 date_default_timezone_set('America/Phoenix');
-$awesome = Array ('dtopel', 'chrisn', 'dons'); // Users with admin access!
-
-
-$services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
-									'/var/run/dhcpd.pid' => 'DHCP Server',
-									'/var/run/mysqld/mysqld.pid' => 'MySQL Database Server',
-									'/var/run/rpcbind.pid' => 'Network File System (NFS)',
-									'/var/run/smbd.pid' => 'Samba File Server (Windows Shares)',
-									'/var/run/sshd.pid' => 'Secure Shell',
-									'/var/run/tftpd.pid' => 'Trivial File Transfer Protocol Daemon',
-									'/var/webmin/miniserv.pid' => 'Webmin'
-									);
 
 /*
 	SSO Functions here
@@ -65,25 +49,6 @@ function suite_names()
 		echo "<tr $class><td>$distro</td><td>$suite</td><td>$version</td></tr>";
 	}
 	echo "</table></div>";
-}
-
-/*
-	List of currently mounted ISO files
-*/
-
-function mounted_isos()
-{
-	echo '
-	<table class="table table-bordered table-striped">
-';
-	$command = "mount | grep .iso | awk {'print $1'} | sed 's/.*\///'";
-	$isos = exec($command,$output);
-	
-	foreach ($output as $iso)
-	{
-		echo "<tr><td>$iso</td></tr>";
-	}
-	echo "</table>";
 }
 
 /*
@@ -1042,10 +1007,13 @@ function main()
 			<div id="statusPage" class="item">
 				<div class="row" style="padding-left: 5px; padding-top: 40px;padding-bottom: 40px">
 					<div class="col-md-4">
-						<div class="panel panel-primary">
+						<div class="panel panel-primary" id="services">
 							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>					
-							<table class="table table-bordered" id="services">
-							</table>
+							<div id="ajaxloader3">
+								<div class="outer"></div>
+								<div class="inner"></div>
+								<p class="text-primary text-center">Loading...</p>
+							</div>	
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -1085,9 +1053,12 @@ function main()
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h3 id="myModalLabel">Mounted ISOs</h3>
 				</div>
-				<div class="modal-body">';
-					echo mounted_isos();
-					echo '
+				<div class="modal-body">
+					<div id="ajaxloader3">
+					  <div class="outer"></div>
+					  <div class="inner"></div>
+					  <p class="text-primary text-center">Loading...</p>
+					</div>					
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-success" id="close" data-dismiss="modal">

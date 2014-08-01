@@ -53,6 +53,15 @@ var App = {
 					$("#services").html(data);
 				},
 			});			
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "isos"}),
+				success: function(data) {
+					$("#mBox div.modal-body").html(data);
+				},
+			});						
 			var d = new Date();
 			$("#timestamp div.container p.navbar-text").html("<em><strong>Refreshed at "+d.toString()+" </strong></em>");
 		},3000);
