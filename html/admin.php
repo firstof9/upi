@@ -187,7 +187,7 @@ echo '
 	<head>
 	<title>Universal PXE Installer Admin</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	</head>
 	<body>
 	<div class="container" style="padding-top: 10px;">
@@ -261,9 +261,10 @@ echo "
 	</div>
 	</script>	
 	</body>
-	<script src=\"https://code.jquery.com/jquery-latest.js\"></script>
-	<script src=\"js/jquery.form.js\"></script>
-	<script src=\"js/bootstrap.js\"></script>
+	<script src=\"//code.jquery.com/jquery-1.11.1.min.js\"></script>
+	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
+	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
+	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
 	<script src=\"js/admin.js\"></script>
 	</html>
 ";
