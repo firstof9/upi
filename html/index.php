@@ -15,7 +15,7 @@
 	HTML Header
 */
 
-$version = "0.2.17";
+$version = "0.2.19";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
 $g_admin = FALSE;
@@ -1092,7 +1092,6 @@ function verify()
 			$var3 = "disk0size".$x;
 			
 			if ($_REQUEST[$var] == "") { break; }
-			if ($_REQUEST[$var2] != "NTFS") { continue; }
 			$diskpart .= " <ModifyPartition wcm:action='add'>\n<Active>true</Active>\n";
 			$diskpart .= "<Label>$_REQUEST[$var]</Label>\n";
 			$diskpart .= "<Format>$_REQUEST[$var2]</Format>\n";
