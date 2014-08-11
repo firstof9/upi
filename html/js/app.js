@@ -146,6 +146,7 @@ var App = {
 			}
 			
 			var windowsDisk = new RegExp("Windows").test(oString);
+			var esxiDisk = new RegExp("ESXi").test(oString);
 			if (windowsDisk == true  && use_gpt == false) 
 			{
 				/* Default partition 1 */
@@ -175,6 +176,21 @@ var App = {
 				$("#disk0mount3").val("System");
 				$("#disk0size3").val("grow");
 				$("#disk0fs3").val("NTFS");
+			}
+			else if (esxiDisk == true)
+			{
+				/* Default partition 1 */
+				$('#disk0mount1').val("datastore1");
+				$("#disk0size1").val("grow");
+				$("#disk0fs1").val("vmwfs");
+				/* Default partition 2 */
+				$("#disk0mount2").val("");
+				$("#disk0size2").val("");
+				$("#disk0fs2").val("");
+				/* Default parition 3 */
+				$("#disk0mount3").val("");
+				$("#disk0size3").val("");
+				$("#disk0fs3").val("");				
 			}
 			/* Linux Partitions */
 			else
@@ -236,7 +252,7 @@ var App = {
 				$("#vnc").val("0");
 				$("#vnc").prop('disabled', true); 
 			}
-			var disallowPrivNet = new RegExp("(Xen Server|VMware ESXi)").test(oString);
+			var disallowPrivNet = new RegExp("(Xen Server|VMware ESXi|ESXi)").test(oString);
 			if (disallowPrivNet == true) { $("#privnet").prop('disabled',true); }
 			else { $("#privnet").prop('disabled',false); }
 		});
@@ -304,12 +320,19 @@ var App = {
 							$("#alertHolder").append($("#alertTemplate").html());
 							$("#alertHolder div.alert span.message").last().html("<span class='glyphicon glyphicon-ok-circle'></span> PXE boot files generated. Please PXE boot the server.");
 							$('html, body').animate({scrollTop:0}, 'fast');
+							var audio = new Audio('audio/working.mp3');
+							audio.play();		
 						}
 						else
 						{
-							$("#alertHolder").append($("#alertTemplate").html());
-							$("#alertHolder div.alert").last().removeClass("alert-success").addClass('alert-danger');
-							$("#alertHolder div.alert span.message").last().html("<span class='glyphicon glyphicon-ban-circle'></span> An error occured: "+response);					
+							$("#mAlert div.modal-dialog div.modal-content div.modal-header h3.mAlertLabel").html("<span class='glyphicon glyphicon-warning-sign'></span> Error");
+							$("#mAlert div.modal-dialog div.modal-content div.modal-body span.message").html("<p><strong>Error: </strong><br>" + response);
+							$("#mAlert").modal('show');
+							var audio = new Audio('audio/error.mp3');
+							audio.play();		
+							//$("#alertHolder").append($("#alertTemplate").html());
+							//$("#alertHolder div.alert").last().removeClass("alert-success").addClass('alert-danger');
+							//$("#alertHolder div.alert span.message").last().html("<span class='glyphicon glyphicon-ban-circle'></span> An error occured: "+response);					
 						}
 					},
 					error: function (response,status,error) {

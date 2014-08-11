@@ -8,9 +8,8 @@ var App = {
 		$(".carousel").carousel({interval: false});
 		this.watchNavBar();
 		this.updateStatsData();
-		
     },
-	
+
 	/*
 		Update stats data
 	*/
@@ -53,15 +52,6 @@ var App = {
 					$("#services").html(data);
 				},
 			});			
-			$.ajax({
-				type: 'GET',
-				url: 'stats_data.php',
-				timeout: 2000,
-				data:  ({mode: "isos"}),
-				success: function(data) {
-					$("#mBox div.modal-body").html(data);
-				},
-			});						
 			var d = new Date();
 			$("#timestamp div.container p.navbar-text").html("<em><strong>Refreshed at "+d.toString()+" </strong></em>");
 		},3000);
@@ -72,6 +62,30 @@ var App = {
 	*/
 	
 	watchNavBar: function () {
+
+		var ret = null;
+		$.ajax({
+				async: false,
+				type: 'GET',
+				url: 'stats2.php',
+				contentType: "application/json; charset=utf-8", 
+				dataType: "json",
+				timeout: 2000,
+				success: function(data) {
+					ret = data;
+				},
+		});
+		$.jqplot.config.enablePlugins = true;
+		var plot1 = $.jqplot('osChart',[ret], {
+			title: 'mmmmm pie',
+			//dataRenderer: ajaxDataRenderer,
+			//dataRendererOptions: { unusedOptionalUrl: jsonurl },
+			animate: true,
+			seriesDefaults : { shadow: true, renderer: $.jqplot.PieRenderer, rendererOptions: { startAngle: 180, highlightMouseOver: true, padding: 4, sliceMargin: 2, showDataLabels: true }},
+			highlighter: { show: true, useAxesFormatters: false, tooltipLocation: 'n', tooltipAxes: 'pieref' , formatString: '%s (%p)'},
+			legend: { show:true, location: 'e'}
+		});	
+	
 		$('#add').click(function() {
 			$('#mainCarousel').carousel(0);
 			$('#add').addClass('active');
@@ -148,6 +162,7 @@ var App = {
 			$('#control').removeClass('active');
 			$('#stats').addClass('active');
 			$('#status').removeClass('active');
+			plot1.replot();
 		});		
 		$('#status').click(function() {
 			$('#mainCarousel').carousel(7);
@@ -166,6 +181,21 @@ var App = {
      * Monitor the Required Variables form for submittal
      */
     watchAdminControls: function () {
+		$('#isobtn').click(function(ev) {
+			ev.preventDefault();
+			$("#mBox div.modal-body").html("<div id=\"ajaxloader3\"><div class=\"outer\"></div><div class=\"inner\"></div><p class=\"text-primary text-center\">Loading...</p></div>");
+			setTimeout(function() {
+				$.ajax({
+					type: 'GET',
+					url: 'stats_data.php',
+					timeout: 2000,
+					data:  ({mode: "isos"}),
+					success: function(data) {
+						$("#mBox div.modal-body").html(data);
+					},
+				});				
+			}, 5000);
+		});
 		$('#controlForm').submit(function(ev) {
 			ev.preventDefault();
 			$.post("admin.php",$('#controlForm').serialize());
