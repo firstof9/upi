@@ -33,6 +33,6 @@ MySQL
 
 TFTPd
 
-Bootstrap (www.getbootstrap.com)
+Bootstrap (www.getbootstrap.com) (This should auto link in via CDN, only download if you want a local copy)
 
 Windows Assessment and Deployment Kit (ADK) (optional for generating Windows PE image)
