@@ -3,14 +3,11 @@
 	PXE Installer Admin page
 	for adding new/additional ISO images
 
-	TODO:
-				Trashed flag will be similar to recycle bin entries will be stored for XX days and auto wiped unless recovered.
 */
 
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = false;
-$SSO_UserData = array();
+$g_admin = true;
 date_default_timezone_set('America/Phoenix');
 
 /*
@@ -18,6 +15,7 @@ date_default_timezone_set('America/Phoenix');
 */
 
 function auth_check() {
+    global $g_admin;
     $g_admin = true;
 }
 
@@ -91,7 +89,11 @@ function cpu_load()
 	<div class=\"panel panel$class\" id=\"cpu_load\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">CPU Load</h5></div>
 		<div class=\"panel-body\">
-			<p class=text$class>Loading...</p>
+			<div id=\"ajaxloader3\">
+			  <div class=\"outer\"></div>
+			  <div class=\"inner\"></div>
+			  <p class=\"text-primary text-center\">Loading...</p>
+			</div>	
 		</div>
 	</div>
 	";
@@ -108,10 +110,11 @@ function ram_status()
 	<div class=\"panel panel-primary\" id=\"ram_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">Memory Usage</h5></div>
 		<div class=\"panel-body\">	
-			<p class=\"text-info\">Loading...</p>
-			<div class=\"progress progress-striped\">
-				<div class=\"$class\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: 100%;\">Loading...</div>
-			</div>
+			<div id=\"ajaxloader3\">
+			  <div class=\"outer\"></div>
+			  <div class=\"inner\"></div>
+			  <p class=\"text-primary text-center\">Loading...</p>
+			</div>	
 		</div>
 	</div>
 	";
@@ -129,10 +132,11 @@ function disk_status()
 	<div class=\"panel panel$class\" id=\"disk_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">Disk Usage</h5></div>
 		<div class=\"panel-body\">		
-			<p class=\"text-info\">Loading....</p>
-			<div class=\"progress progress-striped\">
-				<div class=\"progress-bar progress-bar$class\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"disusageBar\" style=\"width: 100%;\">Loading....</div>
-			</div>
+			<div id=\"ajaxloader3\">
+			  <div class=\"outer\"></div>
+			  <div class=\"inner\"></div>
+			  <p class=\"text-primary text-center\">Loading...</p>
+			</div>	
 		</div>
 	</div>
 	";
@@ -152,7 +156,9 @@ echo '
 	<head>
 	<title>Universal PXE Installer Admin</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link href="css/bootstrap.css" rel="stylesheet">
+	<link href="css/loading.css" rel="stylesheet">
+	<link href="css/jquery.jqplot.min.css" rel="stylesheet">
 	</head>
 	<body>
 	<div class="container" style="padding-top: 10px;">
@@ -163,14 +169,14 @@ echo '
 			<p class="navbar-text navbar-right hidden-xs ';echo $user_text; echo'">Signed in as <span class=" glyphicon glyphicon-';echo $user_icon; echo'"></span> <strong>';echo $user; echo '</strong></p>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li name="add" id="add" class="active"><a href="#"><span class="glyphicon glyphicon-cloud-upload"></span> Add</a></li>
+					<li name="add" id="add" class><a href="#"><span class="glyphicon glyphicon-cloud-upload"></span> Add</a></li>
 					<li name="remove" id="remove" class><a href="#"><span class="glyphicon glyphicon-trash"></span> Remove</a></li>
 					<li name="modify" id="modify" class><a href="#"><span class="glyphicon glyphicon-pencil"></span> Modifiy</a></li>
 					<li name="templates" id="templates" class><a href="#"><span class="glyphicon glyphicon-list-alt"></span> Templates</a></li>
 					<li name="control" id="control" class><a href="#"><span class="glyphicon glyphicon-tasks"></span> Control Panels</a></li>
 					<li name="help" id="help" class><a href="#"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
 					<li name="stats" id="stats" class><a href="#"><span class="glyphicon glyphicon-stats"></span> Stats</a></li>
-					<li name="status" id="status" class><a href="#"><span class="glyphicon glyphicon-list"></span> Status</a></li>
+					<li name="status" id="status" class="active"><a href="#"><span class="glyphicon glyphicon-list"></span> Status</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -184,32 +190,6 @@ echo '
 
 function page_footer()
 {
-	global $dbcnx;
-	$data = array();
-	$legend = array();
-	$labels = array();
-	
-	db_connect();
-
-	$nquery = "SELECT `os` FROM `stats` ORDER BY `installed` DESC LIMIT 16";
-	$result = mysqli_query($dbcnx,$nquery);							
-
-	while ($nrow = mysqli_fetch_array($result))
-	{
-		$legend[] = $nrow[0];
-		$labels[] = $nrow[0];
-	}
-
-	$iquery = "SELECT `installed` FROM `stats` ORDER BY `installed` DESC LIMIT 16";
-	$result = mysqli_query($dbcnx,$iquery);
-
-	while ($irow = mysqli_fetch_array($result))
-	{
-		$data[] = $irow[0];
-	}	
-	$js_labels = json_encode($labels);
-	$js_data  = json_encode($data);
-
 echo "
 	<script id=\"alertTemplate\" type=\"text/plain\">
     <div class=\"alert alert-success\">
@@ -457,7 +437,7 @@ function main()
 	sso_init();
 	auth_check();
 	page_header();
-	global $dbcnx, $g_admin,$services;
+	global $dbcnx, $SSO_UserData, $g_admin,$services;
 	db_connect(); // Connect to database
 	
 	/*
@@ -470,7 +450,7 @@ function main()
 	echo '
 	<div id="mainCarousel" class="carousel slide">
 		<div class="carousel-inner">
-			<div id="addPage" class="item active">
+			<div id="addPage" class="item">
 				<form class="form-horizontal" id="uploadForm" name="uploadForm" action="upload.php" method="post" enctype="multipart/form-data">
 				<div class="row" style="padding-left: 5px; padding-top: 40px">
 					<div class="col-md-10">
@@ -978,7 +958,7 @@ function main()
 								<p >%dns1% -- DNS Server 1 entered into provisioning form</p>
 								<p >%dns2% -- DNS Server 2 entered into provisioning form</p>
 								<p >%gateway% -- Gateway entered into provisioning form</p>
-								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>192-168-1-99</em></p>
+								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>192-168-1-100</em></p>
 								<p >%ip% -- IP entered into provisioning form</p>
 								<p >%mac% -- altered MAC address replacing <strong>:</strong> with <strong>-</strong></p>
 								<p >%netmask% -- Subnet mask entered into provisioning form</p>
@@ -998,13 +978,14 @@ function main()
 						<div class="panel panel-primary">
 							<div class="panel-heading">Top 16 (Re)Installs</div>
 							<div class="panel-body">
-								<img src="stats.php" class="img-rounded">
+								<div id="osChart" style="height:768px;width:1024px; "></div>
+								<!--  <img src="stats.php" class="img-rounded"> -->
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>			
-			<div id="statusPage" class="item">
+			<div id="statusPage" class="item active">
 				<div class="row" style="padding-left: 5px; padding-top: 40px;padding-bottom: 40px">
 					<div class="col-md-4">
 						<div class="panel panel-primary" id="services">
@@ -1030,7 +1011,7 @@ function main()
 						echo '
 					</div>
 					<div class="col-md-8">
-					<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#mBox">
+					<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#mBox" id="isobtn">
 						<span class="glyphicon glyphicon-floppy-disk"></span> Show Mounted ISOs
 					</button>					
 					</div>
@@ -1058,7 +1039,7 @@ function main()
 					  <div class="outer"></div>
 					  <div class="inner"></div>
 					  <p class="text-primary text-center">Loading...</p>
-					</div>					
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-success" id="close" data-dismiss="modal">

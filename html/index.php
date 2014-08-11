@@ -18,13 +18,15 @@
 $version = "0.2.19";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = FALSE;
+$g_admin = false;
 date_default_timezone_set('America/Phoenix');
 
 /*
 	SSO Functions here
 */
+
 function auth_check() {
+    global $g_admin;
     $g_admin = true;
 }
 
@@ -60,7 +62,6 @@ function rewrite_template($version,$ip,$mac,$myip,$netmask,$gateway,$hostname,$n
 
 function auto_fix()
 {
-	$output = array();
 	exec("ssh root@localhost  /root/fix_everything.sh",$output);
 	return $output;
 }
@@ -188,8 +189,8 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- name servers (ie: 8.8.8.8,8.8.4.4)
+	// %hostname% -- hostname generated via IP replacing . with - 
+	// %nameserver% --  name servers (ie: 69.64.66.11,69.64.66.10)
 	// %password% -- password variable
 	
 	//$password = hash('sha512',$password); // encrypt password
@@ -320,7 +321,7 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$fp = fopen("/var/www/html/".$filename,'w'); // create file if doesn't exist and set for writing only
 	if (fwrite($fp,$config) == FALSE)
 	{
-		auto_fix(); // attempt to fix errors
+		$error = auto_fix(); // attempt to fix errors
 		if (fwrite($fp,$config) == FALSE)
 		{
 			error_msg("Unable to write file: ".$filename);
@@ -362,8 +363,8 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %ip% -- IP address assigned to server
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
+	// %hostname% -- hostname generated via IP replacing . with - 
+	// %nameserver% --  name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -421,7 +422,8 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
-	$nameserver = $dns1.",".$dns2;
+	if ($flavor == "centos" || $flavor == "esxi") { $nameserver = $dns1.",".$dns2; } // static config nameserver IPs CSV format
+	else { $nameserver = $dns1.",".$dns2; }
 	
 	// %myip% -- PXE Server IP
 	// %version% -- OS Version
@@ -430,7 +432,7 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
+	// %nameserver% --  name servers (ie: 8.8.8.8 8.8.4.4)
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -592,7 +594,7 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
+	// %nameserver% -- name servers
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -706,7 +708,7 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	// %netmask% -- subnet mask
 	// %gateway% -- default gateway
 	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- codero name servers (ie: 8.8.8.8,8.8.4.4)
+	// %nameserver% --  name servers
 	// %password% -- password variable
 	// %diskpart% - data for disk partitions
 	
@@ -850,6 +852,8 @@ function verify()
 	$tquery = "SELECT * from `flavor` WHERE `name` = '$flavor'";
 	$tresult = mysqli_query($dbcnx,$tquery);
 	
+	if (!$tresult) { die('MySQL query Error: ' . mysqli_error($dbcnx)); } // output error message if selected template somehow does not exist
+	
 	$trow = mysqli_fetch_array($tresult);
 	
 	if ($is_gpt == 1 && $trow['uefi'] != "") { $template = $trow['uefi']; } // Use the UEFI template rather than the standard pxelinux template
@@ -886,6 +890,11 @@ function verify()
 	
 	if ($is_gpt == 1) { exec("cp /tftpboot/".strtoupper($fmac)." /tftpboot/".strtoupper($second_file)); } 
 	else { exec("cp /tftpboot/pxelinux.cfg/$fmac /tftpboot/pxelinux.cfg/$second_file"); } 
+	
+	/*
+		Disk partition generator
+		This is where the disk partitions get generated for the type of automated install
+	*/
 	
 	if ($trow['use_ks'])
 	{
@@ -1092,6 +1101,7 @@ function verify()
 			$var3 = "disk0size".$x;
 			
 			if ($_REQUEST[$var] == "") { break; }
+			// if ($_REQUEST[$var2] != "NTFS") { continue; }
 			$diskpart .= " <ModifyPartition wcm:action='add'>\n<Active>true</Active>\n";
 			$diskpart .= "<Label>$_REQUEST[$var]</Label>\n";
 			$diskpart .= "<Format>$_REQUEST[$var2]</Format>\n";
@@ -1129,7 +1139,7 @@ function verify()
 	{
 		// Manual interactive install
 	}
-	echo "success";
+	echo "success"; // value returned to javascript to display the success message defined in app.js
 }
 
 function main()
@@ -1138,7 +1148,7 @@ function main()
 	page_header();
 
 	global $dbcnx, $version, $g_admin;	
-	$user =  "Local User";
+	$user = "Local User";
 	$user_icon = "user";
 	
 	db_connect(); // Connect to database
@@ -1304,13 +1314,13 @@ function main()
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 1</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x">
+										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x" value="69.64.66.11">
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 2</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x">
+										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x" value="69.64.66.10">
 									</div>
 								</div>
 								<button id="privnet" class="btn btn-warning" type="button" data-toggle="modal" data-target="#PrivNet">

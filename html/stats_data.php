@@ -29,7 +29,7 @@ function service_status($service)
 	if (!isset($status[1])) { return false; }
 	else { return true; }
 }									
-	
+									
 /*
 	List of currently mounted ISO files
 */
@@ -47,8 +47,8 @@ function mounted_isos()
 		echo "<tr><td>$iso</td></tr>";
 	}
 	echo "</table>";
-}	
-									
+}						
+																		
 function getSystemMemInfo() 
 {       
     $data = explode("\n", file_get_contents("/proc/meminfo"));
@@ -67,7 +67,6 @@ function formatSize($bytes)
 	return( round( $bytes, 2 ) . " " . $types[$i] );
 }
 
-
 /*
 	Services Status
 */
@@ -85,6 +84,7 @@ function services_check()
 	}	
 	echo '</table></div>';
 }
+
 
 /* 
 	Display CPU load
@@ -181,7 +181,7 @@ switch($mode) {
 	case "isos":
 	mounted_isos();
 	break;
-	
+
 	case "services":
 	services_check();
 	break;
