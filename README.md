@@ -33,6 +33,8 @@ MySQL
 
 TFTPd
 
+IPMITools (Used to automagicly reboot and set server to PXE Boot off the network)
+
 Bootstrap (www.getbootstrap.com) (This should auto link in via CDN, only download if you want a local copy)
 
 Windows Assessment and Deployment Kit (ADK) (optional for generating Windows PE image)
