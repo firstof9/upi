@@ -15,18 +15,19 @@
 	HTML Header
 */
 
-$version = "0.2.19";
+$version = "0.2.21";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
 $g_admin = false;
 date_default_timezone_set('America/Phoenix');
 
 /*
-	SSO Functions here
+	Insert SSO Functions here
 */
 
 function auth_check() {
     global $g_admin;
+
     $g_admin = true;
 }
 
@@ -93,13 +94,21 @@ echo '
 ';
 }
 
+function findIPMI()
+{
+	$mac = $_REQUEST['mac'];
+	$ip = findMAC($mac);
+	if ($ip != "") { echo $ip; }
+	else { echo ""; }
+}
+
 /*
 		Finds the IP address of given MAC address in /var/log/messages
 */
 
 function findMAC($mac)
 {
-	$ipmi = exec("cat /var/log/messages | grep $mac | grep DHCPACK | head -n1 | awk '{print $8;}'");
+	$ipmi = exec("sudo tail -n 50 /var/log/messages | grep $mac | grep DHCPACK | head -n1 | awk '{print $8;}'");
 	return $ipmi;
 }
 
@@ -109,8 +118,9 @@ function findMAC($mac)
 function ipmiReboot($user,$pass,$mac)
 {
 	$ip = findMAC($mac);
-	exec("ipmitool -I lanplus -H $ip -U $user -P $pass chassis bootdev pxe");
-	exec("ipmitool -I lanplus -H $ip -U $user -P $pass power reset");
+	$log = exec("sudo ipmitool -I lanplus -H ".$ip." -U ".$user." -P ".$pass." chassis bootdev pxe");
+	$log .= exec("sudo ipmitool -I lanplus -H ".$ip." -U ".$user." -P ".$pass." power reset");
+	
 }
 
 
@@ -137,21 +147,6 @@ function PrivMac($mac) {
     $PrivMac = $macHex;
 	if (strlen($PrivMac) == 1) { $PrivMac = "0".$PrivMac; } // Add the padding 0 if only 1 digit exists
     return $PrivMac;
-}
-
-/*
-	Random Password Generator
-*/
-
-function randomPassword() {
-    $alphabet = "abcdefghijkmnopqrstuwxyzABCDEFGHJKLMNOPQRSTUWXYZ0123456789";
-    $pass = array(); //remember to declare $pass as an array
-    $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-    for ($i = 0; $i < 17; $i++) {
-        $n = rand(0, $alphaLength);
-        $pass[] = $alphabet[$n];
-    }
-    return implode($pass); //turn the array into a string
 }
 
 function error_msg($message) { echo $message; }
@@ -182,18 +177,6 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	$config = $row['config'];
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
-	
-	// %myip% -- PXE Server IP
-	// %version% -- OS Version
-	// %mac% -- MAC address
-	// %ip% -- IP address assigned to server
-	// %netmask% -- subnet mask
-	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - 
-	// %nameserver% --  name servers (ie: 69.64.66.11,69.64.66.10)
-	// %password% -- password variable
-	
-	//$password = hash('sha512',$password); // encrypt password
 	
 	/*
 		Create CIDR for Windows netmask
@@ -357,19 +340,6 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
 	
-	// %myip% -- PXE Server IP
-	// %version% -- OS Version
-	// %mac% -- MAC address
-	// %ip% -- IP address assigned to server
-	// %netmask% -- subnet mask
-	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with - 
-	// %nameserver% --  name servers (ie: 8.8.8.8 8.8.4.4)
-	// %password% -- password variable
-	// %diskpart% - data for disk partitions
-	
-	//$password = hash('sha512',$password); // encrypt password
-	
 	$config = str_replace("%version%",$version,$config); // replace the %version%
 	$config = str_replace("%ip%",$ip_address,$config); // replace the %ip%
 	$config = str_replace("%mac%",$mac,$config); // replace the %mac%
@@ -422,23 +392,7 @@ function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$p
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
-	if ($flavor == "centos" || $flavor == "esxi") { $nameserver = $dns1.",".$dns2; } // static config nameserver IPs CSV format
-	else { $nameserver = $dns1.",".$dns2; }
-	
-	// %myip% -- PXE Server IP
-	// %version% -- OS Version
-	// %mac% -- MAC address
-	// %ip% -- IP address assigned to server
-	// %netmask% -- subnet mask
-	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% --  name servers (ie: 8.8.8.8 8.8.4.4)
-	// %password% -- password variable
-	// %diskpart% - data for disk partitions
-	
-	/* 
-	if ($flavor != "esxi") { $password = hash('sha512',$password); } // encrypt password if we're not installing ESXi
-	*/
+	$nameserver = $dns1.",".$dns2;
 	
 	$config = str_replace("%version%",$version,$config); // replace the %version%
 	$config = str_replace("%ip%",$ip_address,$config); // replace the %ip%
@@ -587,17 +541,6 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 	
 	$config = str_replace("%suite%",$suite,$config); // replace the %suite%
 	
-	// %myip% -- PXE Server IP
-	// %version% -- OS Version
-	// %mac% -- MAC address
-	// %ip% -- IP address assigned to server
-	// %netmask% -- subnet mask
-	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% -- name servers
-	// %password% -- password variable
-	// %diskpart% - data for disk partitions
-	
 	$config = str_replace("%version%",$version,$config); // replace the %version%
 	$config = str_replace("%ip%",$ip_address,$config); // replace the %ip%
 	$config = str_replace("%mac%",$mac,$config); // replace the %mac%
@@ -700,21 +643,6 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	else if (strpos(strtolower($_REQUEST['public_mac']),strtolower("BC:30:5B")) !== false) { $is_dell = 1; }
 	
 	$hostname = str_replace(".","-",$ip_address); // Generated from IP address
-	
-	// %myip% -- PXE Server IP
-	// %version% -- OS Version
-	// %mac% -- MAC address
-	// %ip% -- IP address assigned to server
-	// %netmask% -- subnet mask
-	// %gateway% -- default gateway
-	// %hostname% -- hostname generated via IP replacing . with -
-	// %nameserver% --  name servers
-	// %password% -- password variable
-	// %diskpart% - data for disk partitions
-	
-	/* 
-	if ($flavor != "esxi") { $password = hash('sha512',$password); } // encrypt password if we're not installing ESXi
-	*/
 	
 	$config = str_replace("%version%",$version,$config); // replace the %version%
 	$config = str_replace("%ip%",$ip_address,$config); // replace the %ip%
@@ -1131,25 +1059,38 @@ function verify()
       </InstallTo>\n";
 		}
 
-		
-		// No partition setup for Windows
 		generate_win($flavor,$row['version'],$_REQUEST['password'],$_REQUEST['public_ip'],$_REQUEST['public_gateway'],$_REQUEST['public_netmask'],$_REQUEST['control_panel'],$_REQUEST['public_mac'],$_REQUEST['dns1'],$_REQUEST['dns2'],$diskpart);
 	}		
 	else
 	{
 		// Manual interactive install
 	}
+	
+	$ipmi_user = $_REQUEST['ipmi_user'];
+	$ipmi_pass = $_REQUEST['ipmi_pass'];
+	$ipmi_mac = $_REQUEST['ipmi_mac'];
+	
+	if ($ipmi_mac) { ipmiReboot($ipmi_user,$ipmi_pass,$ipmi_mac); }
+	
 	echo "success"; // value returned to javascript to display the success message defined in app.js
 }
 
 function main()
 {
+	/* Start SSO Checks here */
 	auth_check();
 	page_header();
 
 	global $dbcnx, $version, $g_admin;	
 	$user = "Local User";
 	$user_icon = "user";
+	
+	/*
+		Disable some functionality if use is deemed "admin" or not
+	*/
+	
+	$disabled = "disabled";
+	if ($g_admin) { $disabled = ""; }
 	
 	db_connect(); // Connect to database
 	
@@ -1262,13 +1203,13 @@ function main()
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">IPMI Username</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="ipmi_user" class="form-control" name="ipmi_user" value="' . $_REQUEST['ipmi_user'] . '" disabled>
+										<input type="text" id="ipmi_user" class="form-control" name="ipmi_user" value="' . $_REQUEST['ipmi_user'] . '"'.$disabled.'>
 									</div>
 								</div>		
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">IPMI Password</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="ipmi_pass" class="form-control" name="ipmi_pass" value="' . $_REQUEST['ipmi_pass'] . '" disabled>
+										<input type="text" id="ipmi_pass" class="form-control" name="ipmi_pass" value="' . $_REQUEST['ipmi_pass'] . '"'.$disabled.'>
 									</div>
 								</div>									
 							</div>
@@ -1294,7 +1235,14 @@ function main()
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5"><a href="#" rel="tooltip" data-toggle="tooltip" data-placement="left" title data-original-title="Will automagicly reboot and set the server for PXE boot if filled in">IPMI MAC</a></label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="public_mac" class="form-control" name="ipmi_mac" placeholder="00:00:00:00:00:00" value="' . $_REQUEST['ipmi_mac'] . '" disabled>
+										<input type="text" id="ipmi_mac" class="form-control" name="ipmi_mac" placeholder="00:00:00:00:00:00" value="' . $_REQUEST['ipmi_mac'] . '"'.$disabled.'>
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="control-label col-sm-4 col-xs-5"><a href="#" rel="tooltip" data-toggle="tooltip" data-placement="left" title data-original-title="Auto populated from DHCP Logs">IPMI IP</a></label>
+									<div class="col-sm-6 col-xs-7">
+										<input type="text" id="ipmi_ip" class="form-control" name="ipmi_ip" placeholder="x.x.x.x" value="' . $_REQUEST['ipmi_ip'] . '" disabled>
 									</div>
 								</div>								
 
@@ -1314,13 +1262,13 @@ function main()
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 1</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x" value="69.64.66.11">
+										<input type="text" id="dns1" class="form-control" name="dns1" placeholder="x.x.x.x" value="8.8.8.8">
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="control-label col-sm-4 col-xs-5">DNS 2</label>
 									<div class="col-sm-6 col-xs-7">
-										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x" value="69.64.66.10">
+										<input type="text" id="dns2" class="form-control" name="dns2" placeholder="x.x.x.x" value="8.8.4.4">
 									</div>
 								</div>
 								<button id="privnet" class="btn btn-warning" type="button" data-toggle="modal" data-target="#PrivNet">
@@ -1533,7 +1481,7 @@ function main()
 		echo '
 			<p class="navbar-brand">Version '.$version.' '.$updated.'</p>
 		</div>
-		<p class="navbar-text navbar-right hidden-xs ';echo $user_text; echo'">Signed in as <span class=" glyphicon glyphicon-';echo $user_icon; echo'"></span> <strong>';echo $user; echo '</strong></p>
+		<p class="navbar-text navbar-right hidden-xs ';echo $user_text; echo'"><span class="glyphicon glyphicon-volume-up" id="audio" style="padding-right:5em"></span>Signed in as <span class=" glyphicon glyphicon-';echo $user_icon; echo'"></span> <strong>';echo $user; echo '</strong></p>
 	</nav>
 	<div id="mAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mAlertLabel" aria-hidden="true">
 		<div class="modal-dialog">
@@ -1568,10 +1516,10 @@ function main()
     </div>
 	</script>		
 	</body>
-	<script src=\"//code.jquery.com/jquery-1.11.1.min.js\"></script>
-	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
-	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
-	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+	<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js"></script>
 	<script src="js/app.js"></script>
 	</html>
 	';
@@ -1579,6 +1527,10 @@ function main()
 
 
 switch($mode) {
+
+	case "findipmi":
+	findIPMI();
+	break;
 
 	case "submit":
 	verify();

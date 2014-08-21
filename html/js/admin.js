@@ -1,3 +1,29 @@
+function refreshPie() {
+	var ret = null;
+	$.ajax({
+			async: false,
+			type: 'GET',
+			url: 'stats2.php',
+			contentType: "application/json; charset=utf-8", 
+			dataType: "json",
+			timeout: 2000,
+			success: function(data) {
+				ret = data;
+			},
+	});
+	$.jqplot.config.enablePlugins = true;
+	var plot1 = $.jqplot('osChart',[ret], {
+		title: 'mmmmm pie',
+		//dataRenderer: ajaxDataRenderer,
+		//dataRendererOptions: { unusedOptionalUrl: jsonurl },
+		animate: true,
+		seriesDefaults : { shadow: true, renderer: $.jqplot.PieRenderer, rendererOptions: { startAngle: 180, highlightMouseOver: true, padding: 4, sliceMargin: 2, showDataLabels: true }},
+		highlighter: { show: true, useAxesFormatters: false, tooltipLocation: 'n', tooltipAxes: 'pieref' , formatString: '%s (%p)'},
+		legend: { show:true, location: 'e'}
+	});
+	plot1.replot();
+}
+
 var App = {
     /**
      * The onReady method, init everything
@@ -24,6 +50,9 @@ var App = {
 				success: function(data) {
 					$("#cpu_load").html(data);
 				},
+				error: function(request, status, error) {
+					$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+				}
 			});
 			$.ajax({
 				type: 'GET',
@@ -33,6 +62,9 @@ var App = {
 				success: function(data) {
 					$("#disk_status").html(data);
 				},
+				error: function(request, status, error) {
+					$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+				}
 			});
 			$.ajax({
 				type: 'GET',
@@ -42,6 +74,9 @@ var App = {
 				success: function(data) {
 					$("#ram_status").html(data);
 				},
+				error: function(request, status, error) {
+					$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+				}
 			});
 			$.ajax({
 				type: 'GET',
@@ -51,7 +86,22 @@ var App = {
 				success: function(data) {
 					$("#services").html(data);
 				},
-			});			
+				error: function(request, status, error) {
+					$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+				}
+			});		
+			$.ajax({
+				type: 'GET',
+				url: 'stats_data.php',
+				timeout: 2000,
+				data:  ({mode: "mirrors"}),
+				success: function(data) {
+					$("#mirrors").html(data);
+				},
+				error: function(request, status, error) {
+					$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+				}
+			});				
 			var d = new Date();
 			$("#timestamp div.container p.navbar-text").html("<em><strong>Refreshed at "+d.toString()+" </strong></em>");
 		},3000);
@@ -162,7 +212,7 @@ var App = {
 			$('#control').removeClass('active');
 			$('#stats').addClass('active');
 			$('#status').removeClass('active');
-			plot1.replot();
+			refreshPie();
 		});		
 		$('#status').click(function() {
 			$('#mainCarousel').carousel(7);
@@ -194,7 +244,7 @@ var App = {
 						$("#mBox div.modal-body").html(data);
 					},
 				});				
-			}, 5000);
+			}, 3500);
 		});
 		$('#controlForm').submit(function(ev) {
 			ev.preventDefault();

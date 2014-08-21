@@ -2,21 +2,21 @@
 /*
 	PXE Installer Admin page
 	for adding new/additional ISO images
-
 */
 
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
-$g_admin = true;
+$g_admin = false;
 date_default_timezone_set('America/Phoenix');
 
 /*
-	SSO Functions here
+	Insert SSO Functions here
 */
 
 function auth_check() {
     global $g_admin;
-    $g_admin = true;
+    
+	$g_admin = true;
 }
 
 /* 
@@ -61,7 +61,7 @@ function mirror_updates()
 	$command = "head -1 /var/www/html/mirrors/debian/project/trace/$(hostname -f)";
 	$debian = exec($command);
 	echo '	
-	<div class="panel panel-primary">
+	<div class="panel panel-primary" id=\"mirrors\">
 		<div class="panel-heading"><h5 class="panel-title">Local Mirror Status</h5></div>
 	<table class="table table-bordered table-striped">
 	<tr><th>Mirror</th><th>Updated</th></tr>
@@ -210,6 +210,9 @@ echo "
 	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
+	<script src=\"js/jquery.jqplot.min.js\"></script>
+	<script src=\"js/plugins/jqplot.pieRenderer.min.js\"></script>
+	<script type=\"text/javascript\" src=\"./js/plugins/jqplot.highlighter.min.js\"></script>
 	<script src=\"js/admin.js\"></script>
 	</html>
 ";
@@ -434,10 +437,10 @@ function remove_os()
 
 function main()
 {
-	sso_init();
+	/* Insert SSO function call here */
 	auth_check();
 	page_header();
-	global $dbcnx, $SSO_UserData, $g_admin,$services;
+	global $dbcnx, $g_admin,$services;
 	db_connect(); // Connect to database
 	
 	/*
@@ -958,7 +961,7 @@ function main()
 								<p >%dns1% -- DNS Server 1 entered into provisioning form</p>
 								<p >%dns2% -- DNS Server 2 entered into provisioning form</p>
 								<p >%gateway% -- Gateway entered into provisioning form</p>
-								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>192-168-1-100</em></p>
+								<p >%hostname% -- Automaticly generated from provisioning form ie: <em>192-168-2-97.local.lan</em></p>
 								<p >%ip% -- IP entered into provisioning form</p>
 								<p >%mac% -- altered MAC address replacing <strong>:</strong> with <strong>-</strong></p>
 								<p >%netmask% -- Subnet mask entered into provisioning form</p>
@@ -1005,8 +1008,14 @@ function main()
 						echo '
 					</div>
 					<div class="col-md-4">
-						';
-						echo mirror_updates();
+						<div class="panel panel-primary" id="mirrors">
+							<div class="panel-heading"><h3 class="panel-title">Local Mirror Status</h3></div>					
+							<div id="ajaxloader3">
+								<div class="outer"></div>
+								<div class="inner"></div>
+								<p class="text-primary text-center">Loading...</p>
+							</div>	
+						</div>';
 						echo suite_names();
 						echo '
 					</div>

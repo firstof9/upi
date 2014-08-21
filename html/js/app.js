@@ -1,12 +1,32 @@
 function generatePassword() {
 	var length = 16,
-		charset = "abcdefghijknopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789",
+		charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789*!@$%^&-+",
 		retVal = "";
 	for (var i = 0, n = charset.length; i < length; ++i) {
 		retVal += charset.charAt(Math.floor(Math.random() * n));
 	}
 	return retVal;
 }
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toGMTString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+    }
+    return "";
+}
+
+var audio = getCookie("audio");
 
 var App = {
     /**
@@ -15,11 +35,44 @@ var App = {
     ready: function () {
         this.watchRequiredVariablesForm();
 		this.buttons();
+		this.ipmi();
 		$('[data-toggle=tooltip]').tooltip();
 		$(".carousel").carousel({interval: false});
+		if (audio == "off") { $("#audio").last().removeClass("glyphicon-volume-up").addClass('glyphicon-volume-off'); }
     },
 	
+	ipmi: function() {
+		setInterval(function() {
+			var ipmimac = $("#ipmi_mac").val();
+			if (ipmimac != "")
+			{
+				$.ajax({
+					type: 'GET',
+					url: 'index.php',
+					timeout: 2000,
+					data:  ({mode: "findipmi", mac: ipmimac}),
+					success: function(data) {
+						$("#ipmi_ip").val(data);
+					},
+					error: function(request, status, error) {
+						$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+					}
+				});
+			}
+		},3000);
+	},
+	
 	buttons: function() {
+		$("#audio").click(function(ev) {
+			ev.preventDefault();
+			var audio = getCookie("audio");
+			if (audio != "")
+				{
+					if (audio == "on") { audio = "off"; setCookie("audio", "off"); $("#audio").last().removeClass("glyphicon-volume-up").addClass('glyphicon-volume-off'); }
+					else { audio = "on"; setCookie("audio", "on"); $("#audio").last().removeClass("glyphicon-volume-off").addClass('glyphicon-volume-up'); }
+				}
+			else { audio = "on"; setCookie("audio", "on"); $("#audio").last().removeClass("glyphicon-volume-off").addClass('glyphicon-volume-up'); }
+		});
 		$("#generate").click(function(ev) {
 			ev.preventDefault();
 			var password = generatePassword();
@@ -224,7 +277,7 @@ var App = {
 				data:  ({mode: "data", id : qString}),
 				url: 'db_lib.php',
 				success: function(data) {
-					var allowedDisk = new RegExp("Ubuntu").test(oString);
+					var allowedDisk = new RegExp("(Ubuntu|VMware ESXi|ESXi)").test(oString);
 					var array = data.split("|");
 					if (array[0] == 1 && allowedDisk == false) { $("#disk1").prop('disabled',false); }
 					else { $("#disk1").prop('disabled',true); }
@@ -320,16 +373,22 @@ var App = {
 							$("#alertHolder").append($("#alertTemplate").html());
 							$("#alertHolder div.alert span.message").last().html("<span class='glyphicon glyphicon-ok-circle'></span> PXE boot files generated. Please PXE boot the server.");
 							$('html, body').animate({scrollTop:0}, 'fast');
-							var audio = new Audio('audio/working.mp3');
-							audio.play();		
+							if (audio == "on")
+							{
+								var audio = new Audio('audio/working.mp3');
+								audio.play();		
+							}
 						}
 						else
 						{
 							$("#mAlert div.modal-dialog div.modal-content div.modal-header h3.mAlertLabel").html("<span class='glyphicon glyphicon-warning-sign'></span> Error");
 							$("#mAlert div.modal-dialog div.modal-content div.modal-body span.message").html("<p><strong>Error: </strong><br>" + response);
 							$("#mAlert").modal('show');
-							var audio = new Audio('audio/error.mp3');
-							audio.play();		
+							if (audio == "on")
+							{
+								var audio = new Audio('audio/error.mp3');
+								audio.play();		
+							}
 							//$("#alertHolder").append($("#alertTemplate").html());
 							//$("#alertHolder div.alert").last().removeClass("alert-success").addClass('alert-danger');
 							//$("#alertHolder div.alert span.message").last().html("<span class='glyphicon glyphicon-ban-circle'></span> An error occured: "+response);					
