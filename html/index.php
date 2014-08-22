@@ -96,7 +96,7 @@ echo '
 
 function findIPMI()
 {
-	$mac = $_REQUEST['mac'];
+	$mac = strtolower($_REQUEST['mac']);
 	$ip = findMAC($mac);
 	if ($ip != "") { echo $ip; }
 	else { echo ""; }
@@ -108,7 +108,7 @@ function findIPMI()
 
 function findMAC($mac)
 {
-	$ipmi = exec("sudo tail -n 50 /var/log/messages | grep $mac | grep DHCPACK | head -n1 | awk '{print $8;}'");
+	$ipmi = exec("sudo tail -n 150 /var/log/messages | grep $mac | grep DHCPACK | head -n1 | awk '{print $8;}'");
 	return $ipmi;
 }
 
@@ -117,7 +117,7 @@ function findMAC($mac)
 */
 function ipmiReboot($user,$pass,$mac)
 {
-	$ip = findMAC($mac);
+	$ip = findMAC(strtolower($mac));
 	$log = exec("sudo ipmitool -I lanplus -H ".$ip." -U ".$user." -P ".$pass." chassis bootdev pxe");
 	$log .= exec("sudo ipmitool -I lanplus -H ".$ip." -U ".$user." -P ".$pass." power reset");
 	
