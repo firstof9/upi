@@ -94,6 +94,13 @@ bcdedit /store %BCDSTORE%
 :: This was added because at BCD loading, it will freeze and then complain of missing fonts
 md %TFTPPATH%\fonts
 copy %PEPATH%\ISO\boot\fonts\*.* %TFTPPATH%\fonts
+
+echo Copying installer files into Windows PE Image... (if any errors occur copy the files manually)
+:: Copy files into Windows PE Image
+copy %BASEDIR%\startnet.cmd %TFTPPATH%\Windows\system32\
+copy %BASEDIR%\installer.vbs %TFTPPATH%\Windows\system32\
+copy %BASEDIR%\installer.cmd %TFTPPATH%\sources\
+
 echo Please add files to %PEPATH%\mount then
 pause
 :: If the command below fails, make sure to use imagex to unmount C:\winpe\winpe_amd64\mount
