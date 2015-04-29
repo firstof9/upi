@@ -207,6 +207,7 @@ echo "
 	</script>	
 	</body>
 	<script src=\"//code.jquery.com/jquery-1.11.1.min.js\"></script>
+	<script src=\"//malsup.github.com/jquery.form.js\"></script>
 	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
