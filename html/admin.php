@@ -156,7 +156,7 @@ echo '
 	<head>
 	<title>Universal PXE Installer Admin</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link href="css/loading.css" rel="stylesheet">
 	<link href="css/jquery.jqplot.min.css" rel="stylesheet">
 	</head>
