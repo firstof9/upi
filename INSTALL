@@ -4,7 +4,7 @@ INSTALL
 CentOS:
 yum -y install apache php mysql-server tftp-server
 
-You can download bootstrap here: http://www.getbootstrap.com
+You can download bootstrap here: http://www.getbootstrap.com (not required unless server has not outside internet access)
 
 OR
 
