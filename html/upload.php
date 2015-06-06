@@ -6,6 +6,7 @@
 
 $osurl = $_REQUEST['osurl'];
 $wimurl = $_REQUEST['wimurl'];
+require
 
 if ($osurl == "" && $_FILES['osfile']['name'] == "" && $wimurl == "") { echo "No file URL specified or uploaded file failed to upload."; return; }
 
@@ -20,7 +21,8 @@ function db_connect()
 	mysqli_query($dbcnx,"set session wait_timeout=600"); // set session timeout to 600 seconds
 }
 
-$directory = "/tftpboot/boot/"; // base directory of uploaded files (need to make this a setting in config.php)
+//$directory = "/tftpboot/boot/"; // base directory of uploaded files
+// moved to setting in config.php
 
 db_connect();
 
@@ -49,12 +51,12 @@ else { $flavorname = $_REQUEST['flavorname']; }
 if ($can_plesk == "on") { $can_plesk = 1; }
 if ($can_cpanel == "on") { $can_cpanel = 1; }
 
-$directory .= strtolower($osname) ."/";
-mkdir($directory, 0777);
-$directory .= $osver ."/";
-mkdir($directory, 0777);
+$tftproot .= strtolower($osname) ."/";
+mkdir($tftproot, 0777);
+$tftproot .= $osver ."/";
+mkdir($tftproot, 0777);
 
-$iso_directory = $directory."iso/";
+$iso_directory = $tftproot."iso/";
 mkdir($iso_directory,0777);
 
 $template = $_REQUEST['template'];
@@ -64,9 +66,9 @@ $use_preseed = $_REQUEST['use_preseed'];
 $use_xen = $_REQUEST['use_xen'];
 $use_bsd = $_REQUEST['use_bsd'];
 
-if ($wimurl != "") { $directory = "n/a"; }
+if ($wimurl != "") { $tftproot = "n/a"; }
 
-$query = "INSERT INTO `os` (name,version,comment,location,wim,can_plesk,can_cpanel,flavor) VALUES('$osname','$osver','$oscomment','$directory','$wimurl','$can_plesk','$can_cpanel','$flavorname')";
+$query = "INSERT INTO `os` (name,version,comment,location,wim,can_plesk,can_cpanel,flavor) VALUES('$osname','$osver','$oscomment','$tftproot','$wimurl','$can_plesk','$can_cpanel','$flavorname')";
 $result = mysqli_query($dbcnx,$query);
 
 if (!$result) {
@@ -109,8 +111,8 @@ if ($osurl != "")
 	curl_close($ch); // close the handler
 	fclose($fh); // close the file we were writing
 	
-	exec("ssh root@localhost  mv ".$temp_path." ".$directory);
-	$full_path = $directory;
+	exec("ssh root@localhost  mv ".$temp_path." ".$tftproot);
+	$full_path = $tftproot;
 	$full_path .= $filename;
 	
 	exec("ssh root@localhost  mount -o loop ".$full_path." ".$iso_directory);
@@ -151,11 +153,11 @@ else if (isset($_FILES["osfile"]))
 	else
 	{
 		$name = $_FILES["osfile"]["name"];
-		$directory .= $name;
-		if (move_uploaded_file($_FILES["osfile"]["tmp_name"],$directory))
+		$tftproot .= $name;
+		if (move_uploaded_file($_FILES["osfile"]["tmp_name"],$tftproot))
 		{
 			// mount the ISO
-			exec("ssh root@localhost  mount -o loop ".$directory." ".$iso_directory);
+			exec("ssh root@localhost  mount -o loop ".$tftproot." ".$iso_directory);
 			if (strtolower($osname) == "ubuntu") { exec("ssh root@localhost  ubuntu_pxe_copy.sh ".$osver); } // copy installer kernel from ISO
 			else if (strtolower($osname) == "centos") { exec("ssh root@localhost  centos_pxe_copy.sh ".$osver); } // copy installer kernel from ISO
 			else if (strtolower($osname) == "oel") { exec("ssh root@localhost  /root/oel_pxe_copy.sh ".$osver); } // copy installer kernel from ISO
@@ -163,11 +165,11 @@ else if (isset($_FILES["osfile"]))
 			else if (strtolower($osname) == "debian") { exec("ssh root@localhost /root/debian_pxe_copy.sh ".$osver); } // copy PXE Boot from Debian FTP (only place to get them)			
 			else if (strtolower($osname) == "esxi") { exec("ssh root@localhost /root/esxi_pxe_copy.sh ".$osver); } // copy PXE Boot from Debian FTP (only place to get them)			
 			
-			exec("ssh root@localhost  fstab_update.sh ".$directory." ".$iso_directory); // write iso mount to /etc/fstab to load the ISO on boot up
+			exec("ssh root@localhost  fstab_update.sh ".$tftproot." ".$iso_directory); // write iso mount to /etc/fstab to load the ISO on boot up
 			
 			echo "ISO mounted to ".$iso_directory;
 		}
-		else { echo "Error moving file " . $_FILES["osfile"]["tmp_name"] ." to ". $directory; }
+		else { echo "Error moving file " . $_FILES["osfile"]["tmp_name"] ." to ". $tftproot; }
 	}
 }
 ?>
