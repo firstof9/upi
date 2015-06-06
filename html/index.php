@@ -15,7 +15,7 @@
 	HTML Header
 */
 
-$version = "0.2.21";
+$version = "0.2.22";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
 $g_admin = false;
