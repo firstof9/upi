@@ -6,8 +6,10 @@
 
 $osurl = $_REQUEST['osurl'];
 $wimurl = $_REQUEST['wimurl'];
-require
 
+/*
+	No file specified in either field abort with error message
+*/
 if ($osurl == "" && $_FILES['osfile']['name'] == "" && $wimurl == "") { echo "No file URL specified or uploaded file failed to upload."; return; }
 
 $dbcnx = 0;
