@@ -9,10 +9,8 @@ $mysql_password = "password";
 //Name of the database to conenct to
 $mysql_database = "UPI";
 //TFTProot directory
-$tftproot = "/tftpboot/boot/";
+$tftproot = "/tftpboot/";
 //Hostname Suffix (ie: .whatever.your.domain.com)
 $hostnamesuffix = "";
-//Interface Name that's connected to the PXE Installer network
-$pxe_interface = "eth2";
 
 ?>

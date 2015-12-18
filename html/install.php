@@ -2,10 +2,6 @@
 /*
 	Universal PXE Installer - Installer? :P
 	
-	TODO:
-		Precheck for TFTP server
-		Precheck directory structure
-		More prechecks
 */
 
 $dbcnx = 0;
@@ -102,7 +98,7 @@ echo '
 	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
-	<script src=\"js/install.js\"></script>
+	<script src="js/install.js"></script>
 	</html>
 	';
 }

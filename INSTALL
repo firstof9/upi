@@ -4,7 +4,7 @@ INSTALL
 CentOS:
 yum -y install apache php mysql-server tftp-server
 
-You can download bootstrap here: http://www.getbootstrap.com (not required unless server has not outside internet access)
+You can download bootstrap here: http://www.getbootstrap.com
 
 OR
 
@@ -12,11 +12,11 @@ wget https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-
 
 COPY FILES
 
-scripts         -- These move this directory to /root should look like this: /root/scripts
-html            -- These files go in your webroot ie: /var/www/html
-mysql           -- holds the database dump to be imported to your MySQL database (copy directory into the HTML directory)
-templates       -- Various automation template examples
-tftp            -- These files go in your tftproot directory ie: /tftpboot or /var/tftproot
+scripts -- These files go in /root
+html -- These files go in your webroot ie: /var/www/html
+mysql -- holds the database dump to be imported to your MySQL database
+templates -- Various automation template examples
+tftp -- These files go in your tftproot directory ie: /tftpboot or /var/tftproot
 windows scripts -- These are files that are to be added to your Windows PE boot image for automating Windows installs
 
 MODIFY FILES
