@@ -112,7 +112,7 @@ var App = {
 	*/
 	
 	watchNavBar: function () {
-
+	/*
 		var ret = null;
 		$.ajax({
 				async: false,
@@ -135,7 +135,7 @@ var App = {
 			highlighter: { show: true, useAxesFormatters: false, tooltipLocation: 'n', tooltipAxes: 'pieref' , formatString: '%s (%p)'},
 			legend: { show:true, location: 'e'}
 		});	
-	
+	*/
 		$('#add').click(function() {
 			$('#mainCarousel').carousel(0);
 			$('#add').addClass('active');

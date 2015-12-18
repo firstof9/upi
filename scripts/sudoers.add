@@ -1,0 +1,4 @@
+Cmnd_Alias STATS = /usr/bin/cat /var/run/*.pid, /usr/bin/cat /var/webmin/miniserv.pid
+apache ALL=(ALL) NOPASSWD:STATS, /usr/bin/tail /var/log/messages, /usr/bin/ipmitool, /root/scripts/*.sh, /usr/bin/mv, /usr/bin/mount
+Defaults!STATS !requiretty
+Defaults:apache !requiretty

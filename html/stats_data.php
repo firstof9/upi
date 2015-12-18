@@ -8,7 +8,8 @@ $mode = $_REQUEST['mode'];
 $services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
 									'/var/run/dhcpd.pid' => 'DHCP Server',
 									'/var/run/mysqld/mysqld.pid' => 'MySQL Database Server',
-									'/var/run/rpcbind.pid' => 'Network File System (NFS)',
+									'/var/run/mariadb/mariadb.pid' => 'Maria Database Server',
+									'/var/run/rpc.statd.pid' => 'Network File System (NFS)',
 									'/var/run/smbd.pid' => 'Samba File Server (Windows Shares)',
 									'/var/run/sshd.pid' => 'Secure Shell',
 									'/var/run/tftpd.pid' => 'Trivial File Transfer Protocol Daemon',
@@ -21,8 +22,10 @@ $services = array('/var/run/httpd/httpd.pid' => 'Apache Web Server',
 
 function service_status($service)
 {
-	$command = "cat $service";
-	$pid = exec($command);
+	$command = "sudo cat $service";
+	$pid = exec($command,$output,$code);
+	if ($code) { return false; }
+	
 	$command = "ps -p $pid";
 	$status = exec($command);
 	
@@ -176,6 +179,29 @@ function disk_status()
 	
 }
 
+/*
+	Display timestamp from last Mirror updates
+*/
+
+function mirror_updates()
+{
+	$command = "cat /var/www/html/mirrors/ubuntu/project/trace/$(hostname -f)";
+	$ubuntu = exec($command,$output,$code);
+	if ($code) { $ubuntu = "n/a"; }
+	
+	$command = "head -1 /var/www/html/mirrors/debian/project/trace/$(hostname -f)";
+	$debian = exec($command,$output,$code);
+	if ($code) { $debian = "n/a"; }
+	echo '	
+		<div class="panel-heading"><h5 class="panel-title">Local Mirror Status</h5></div>
+	<table class="table table-bordered table-striped">
+	<tr><th>Mirror</th><th>Updated</th></tr>
+';
+	echo "<tr><td>Debian</td><td>$debian</td></tr>";
+	echo "<tr><td>Ubuntu</td><td>$ubuntu</td></tr>";
+	echo '</table>';
+}
+
 switch($mode) {
 
 	case "isos":
@@ -196,6 +222,10 @@ switch($mode) {
 	
 	case "cpu":
 	cpu_load();
+	break;
+	
+	case "mirrors":
+	mirror_updates();
 	break;
 
 	default:

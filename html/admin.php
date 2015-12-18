@@ -156,12 +156,12 @@ echo '
 	<head>
 	<title>Universal PXE Installer Admin</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link href="css/loading.css" rel="stylesheet">
 	<link href="css/jquery.jqplot.min.css" rel="stylesheet">
 	</head>
 	<body>
-	<div class="container" style="padding-top: 10px;">
+	<div class="container" style="padding-top: 10px; padding-bottom: 20px;">
 		<nav class ="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="#">PXE Installer Admin</a>
@@ -207,6 +207,7 @@ echo "
 	</script>	
 	</body>
 	<script src=\"//code.jquery.com/jquery-1.11.1.min.js\"></script>
+	<script src=\"//malsup.github.com/jquery.form.js\"></script>
 	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
 	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
@@ -397,7 +398,7 @@ function force_remove_os()
 	
 	if ($clone == "0")
 	{
-		exec("ssh root@localhost  /root/remove_os.sh ".$location." ".$iso_directory);
+		exec("sudo /root/remove_os.sh ".$location." ".$iso_directory);
 	}
 	echo "OS removed successfully.";
 }
@@ -989,7 +990,7 @@ function main()
 				</div>
 			</div>			
 			<div id="statusPage" class="item active">
-				<div class="row" style="padding-left: 5px; padding-top: 40px;padding-bottom: 40px">
+				<div class="row" style="padding-left: 5px; padding-bottom: 40px">
 					<div class="col-md-4">
 						<div class="panel panel-primary" id="services">
 							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>					
