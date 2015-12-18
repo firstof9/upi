@@ -11,11 +11,7 @@
 				Added auto fix dir permissions function to help resolve errors automagicly
 */
 
-/* 
-	HTML Header
-*/
-
-$version = "0.2.21";
+$version = "0.3.1";
 $mode = $_REQUEST['mode'];
 $dbcnx = 0;
 $g_admin = false;
@@ -63,7 +59,7 @@ function rewrite_template($version,$ip,$mac,$myip,$netmask,$gateway,$hostname,$n
 
 function auto_fix()
 {
-	exec("ssh root@localhost  /root/fix_everything.sh",$output);
+	exec("sudo /root/fix_everything.sh",$output);
 	return $output;
 }
 
@@ -165,7 +161,7 @@ function db_connect()
 function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$panel,$mac,$dns1,$dns2,$diskpart)
 {
 	global $dbcnx;
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	db_connect();
@@ -322,7 +318,7 @@ function generate_win($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$panel,$mac,$dns1,$dns2)
 {
 	global $dbcnx;
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	db_connect();
@@ -374,7 +370,7 @@ function generate_xen($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 function generate_ks($flavor,$version,$password,$ip_address,$gateway,$netmask,$panel,$mac,$dns1,$dns2,$diskpart)
 {
 	global $dbcnx;
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	db_connect();
@@ -503,7 +499,7 @@ function generate_preseed($flavor,$version,$password,$ip_address,$gateway,$netma
 {
 	global $dbcnx;
 	// Generate preseed file for Debian based installs
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	db_connect();
@@ -625,7 +621,7 @@ echo 'netmask $priv_netmask' >> /target/etc/network/interfaces; \
 function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$panel,$mac,$diskpart,$dns1,$dns2)
 {
 	global $dbcnx;
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	db_connect();
@@ -686,7 +682,7 @@ function generate_bsd($flavor,$version,$password,$ip_address,$gateway,$netmask,$
 	if ($version == "9.1") { copy("/var/www/html/freebsd.91.conf","/var/www/html/freebsd.conf"); }
 	else if ($version == "9.2") { copy("/var/www/html/freebsd.92.conf","/var/www/html/freebsd.conf"); }
 	else if ($version == "10.0") { copy("/var/www/html/freebsd.100.conf","/var/www/html/freebsd.conf"); }
-	exec("ssh root@localhost  refresh_dhcp.sh"); // reload DHCP for updated FreeBSD root directory
+	// exec("ssh root@localhost  refresh_dhcp.sh"); // reload DHCP for updated FreeBSD root directory
 }
 
 function verify()
@@ -694,8 +690,8 @@ function verify()
 	global $dbcnx;
 	//var_dump($_REQUEST); // debugging code
 	
-	// Get IP address of "install interface" currently eth2
-	$command = "/sbin/ifconfig eth2 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+	// Get IP address of "install interface" currently $pxe_interface
+	$command = "/sbin/ifconfig $pxe_interface | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
 	$myip = exec($command);
 	
 	$osid = $_REQUEST["os"]; // ID number associated with selected OS in the MySQL database
