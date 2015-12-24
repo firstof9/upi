@@ -7,7 +7,7 @@ function refreshPie() {
 	timeout: 2000,
 	data:  ({mode: "chart"}),
 	success: function(data) {
-		alert(data);
+		//alert(data);
 		//var pieData = JSON.parse(data);
 		var myChart = $("#osChart").get(0).getContext("2d");
 		var osPie = new Chart(myChart).Pie([data]);

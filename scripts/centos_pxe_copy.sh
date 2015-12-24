@@ -17,7 +17,7 @@ cp $TFTPDIR/boot/centos/$1/iso/images/stage2.img $TFTPDIR/boot/centos/$1/images/
 #rmdir /tftpboot/boot/centos/$1/iso/
 
 # This shouldn't be needed as the path /tftpboot/boot/centos is already shared
-#echo "/tftpboot/boot/centos/$1 192.168.2.0/255.255.255.0(rw,insecure,no_subtree_check,nohide)" >> /etc/exports
+echo "/tftpboot/boot/centos/$1 (rw,insecure,no_subtree_check,nohide)" >> /etc/exports
 exportfs -r
 
 echo "PXE Install files ready for CentOS $1"

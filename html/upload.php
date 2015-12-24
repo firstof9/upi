@@ -13,6 +13,7 @@ $wimurl = $_REQUEST['wimurl'];
 if ($osurl == "" && $_FILES['osfile']['name'] == "" && $wimurl == "") { echo "No file URL specified or uploaded file failed to upload."; return; }
 
 $dbcnx = 0;
+require('config.php');
 
 function db_connect()
 {
