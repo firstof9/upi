@@ -1,27 +1,21 @@
 function refreshPie() {
-	var ret = null;
 	$.ajax({
-			async: false,
-			type: 'GET',
-			url: 'stats2.php',
-			contentType: "application/json; charset=utf-8", 
-			dataType: "json",
-			timeout: 2000,
-			success: function(data) {
-				ret = data;
-			},
+	type: 'GET',
+	url: 'stats_data.php',
+	contentType: "application/json; charset=utf-8", 
+	dataType: "json",	
+	timeout: 2000,
+	data:  ({mode: "chart"}),
+	success: function(data) {
+		alert(data);
+		//var pieData = JSON.parse(data);
+		var myChart = $("#osChart").get(0).getContext("2d");
+		var osPie = new Chart(myChart).Pie([data]);
+	},
+	error: function(request, status, error) {
+		$("#mBox div.modal-body").html("<p class='text-primary'>An error occured when attempting to communicate with the server error message: "+request.responseText);
+	}
 	});
-	$.jqplot.config.enablePlugins = true;
-	var plot1 = $.jqplot('osChart',[ret], {
-		title: 'mmmmm pie',
-		//dataRenderer: ajaxDataRenderer,
-		//dataRendererOptions: { unusedOptionalUrl: jsonurl },
-		animate: true,
-		seriesDefaults : { shadow: true, renderer: $.jqplot.PieRenderer, rendererOptions: { startAngle: 180, highlightMouseOver: true, padding: 4, sliceMargin: 2, showDataLabels: true }},
-		highlighter: { show: true, useAxesFormatters: false, tooltipLocation: 'n', tooltipAxes: 'pieref' , formatString: '%s (%p)'},
-		legend: { show:true, location: 'e'}
-	});
-	plot1.replot();
 }
 
 var App = {
@@ -112,7 +106,7 @@ var App = {
 	*/
 	
 	watchNavBar: function () {
-
+	/*
 		var ret = null;
 		$.ajax({
 				async: false,
@@ -135,7 +129,7 @@ var App = {
 			highlighter: { show: true, useAxesFormatters: false, tooltipLocation: 'n', tooltipAxes: 'pieref' , formatString: '%s (%p)'},
 			legend: { show:true, location: 'e'}
 		});	
-	
+	*/
 		$('#add').click(function() {
 			$('#mainCarousel').carousel(0);
 			$('#add').addClass('active');
@@ -233,7 +227,7 @@ var App = {
     watchAdminControls: function () {
 		$('#isobtn').click(function(ev) {
 			ev.preventDefault();
-			$("#mBox div.modal-body").html("<div id=\"ajaxloader3\"><div class=\"outer\"></div><div class=\"inner\"></div><p class=\"text-primary text-center\">Loading...</p></div>");
+			$("#mBox div.modal-body").html("<div class=\"content\"><div class=\"circle\"></div><div class=\"circle1\"></div></div><p class=\"text-primary text-center\">Loading...</p>");
 			setTimeout(function() {
 				$.ajax({
 					type: 'GET',

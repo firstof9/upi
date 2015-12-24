@@ -89,11 +89,11 @@ function cpu_load()
 	<div class=\"panel panel$class\" id=\"cpu_load\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">CPU Load</h5></div>
 		<div class=\"panel-body\">
-			<div id=\"ajaxloader3\">
-			  <div class=\"outer\"></div>
-			  <div class=\"inner\"></div>
-			  <p class=\"text-primary text-center\">Loading...</p>
-			</div>	
+			<div class=\"content\">
+				<div class=\"circle\"></div>
+				<div class=\"circle1\"></div>
+			</div>
+			<p class=\"text-primary text-center\">Loading...</p>
 		</div>
 	</div>
 	";
@@ -110,11 +110,11 @@ function ram_status()
 	<div class=\"panel panel-primary\" id=\"ram_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">Memory Usage</h5></div>
 		<div class=\"panel-body\">	
-			<div id=\"ajaxloader3\">
-			  <div class=\"outer\"></div>
-			  <div class=\"inner\"></div>
-			  <p class=\"text-primary text-center\">Loading...</p>
-			</div>	
+			<div class=\"content\">
+				<div class=\"circle\"></div>
+				<div class=\"circle1\"></div>
+			</div>
+			<p class=\"text-primary text-center\">Loading...</p>
 		</div>
 	</div>
 	";
@@ -132,11 +132,11 @@ function disk_status()
 	<div class=\"panel panel$class\" id=\"disk_status\">
 		<div class=\"panel-heading\"><h5 class=\"panel-title\">Disk Usage</h5></div>
 		<div class=\"panel-body\">		
-			<div id=\"ajaxloader3\">
-			  <div class=\"outer\"></div>
-			  <div class=\"inner\"></div>
-			  <p class=\"text-primary text-center\">Loading...</p>
-			</div>	
+			<div class=\"content\">
+				<div class=\"circle\"></div>
+				<div class=\"circle1\"></div>
+			</div>
+			<p class=\"text-primary text-center\">Loading...</p>
 		</div>
 	</div>
 	";
@@ -158,7 +158,6 @@ echo '
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link href="css/loading.css" rel="stylesheet">
-	<link href="css/jquery.jqplot.min.css" rel="stylesheet">
 	</head>
 	<body>
 	<div class="container" style="padding-top: 10px; padding-bottom: 20px;">
@@ -190,33 +189,32 @@ echo '
 
 function page_footer()
 {
-echo "
-	<script id=\"alertTemplate\" type=\"text/plain\">
-    <div class=\"alert alert-success\">
-        <button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>
-		 <span class=\"message\"></span>
+echo '
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="//malsup.github.com/jquery.form.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+	<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+	<script src="js/admin.js"></script>
+	
+	<script id="alertTemplate" type="text/plain">
+    <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+		 <span class="message"></span>
     </div>
 	</script>
-	<script id=\"progressbar\" type=\"text/plain\">
-	<div id=\"progressOverlay\">
-		<p class=\"text-info\">Uploading file...</p>
-		<div class=\"progress progress-striped active\">
-			<div class=\"progress-bar\" role=\"pogressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemanx=\"100\" id=\"progressBar\" style=\"width: 0%;\">0%</div>
+	<script id="progressbar" type="text/plain">
+	<div id="progressOverlay">
+		<p class="text-info">Uploading file...</p>
+		<div class="progress progress-striped active">
+			<div class="progress-bar" role="pogressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemanx="100" id="progressBar" style="width: 0%;">0%</div>
 		</div>
 	</div>
 	</script>	
 	</body>
-	<script src=\"//code.jquery.com/jquery-1.11.1.min.js\"></script>
-	<script src=\"//malsup.github.com/jquery.form.js\"></script>
-	<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js\"></script>
-	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js\"></script>
-	<script src=\"//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js\"></script>
-	<script src=\"js/jquery.jqplot.min.js\"></script>
-	<script src=\"js/plugins/jqplot.pieRenderer.min.js\"></script>
-	<script type=\"text/javascript\" src=\"./js/plugins/jqplot.highlighter.min.js\"></script>
-	<script src=\"js/admin.js\"></script>
 	</html>
-";
+';
 }
 
 function os_stats()
@@ -982,7 +980,7 @@ function main()
 						<div class="panel panel-primary">
 							<div class="panel-heading">Top 16 (Re)Installs</div>
 							<div class="panel-body">
-								<div id="osChart" style="height:768px;width:1024px; "></div>
+								<canvas id="osChart" width="1024" height="768"></canvas>
 								<!--  <img src="stats.php" class="img-rounded"> -->
 							</div>
 						</div>
@@ -993,12 +991,14 @@ function main()
 				<div class="row" style="padding-left: 5px; padding-bottom: 40px">
 					<div class="col-md-4">
 						<div class="panel panel-primary" id="services">
-							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>					
-							<div id="ajaxloader3">
-								<div class="outer"></div>
-								<div class="inner"></div>
+							<div class="panel-heading"><h3 class="panel-title">Services</h3></div>
+							<div class="panel-body">
+								<div class="content">
+									<div class="circle"></div>
+									<div class="circle1"></div>
+								</div>
 								<p class="text-primary text-center">Loading...</p>
-							</div>	
+							</div>
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -1011,11 +1011,13 @@ function main()
 					<div class="col-md-4">
 						<div class="panel panel-primary" id="mirrors">
 							<div class="panel-heading"><h3 class="panel-title">Local Mirror Status</h3></div>					
-							<div id="ajaxloader3">
-								<div class="outer"></div>
-								<div class="inner"></div>
+							<div class="panel-body">
+								<div class="content">
+									<div class="circle"></div>
+									<div class="circle1"></div>
+								</div>
 								<p class="text-primary text-center">Loading...</p>
-							</div>	
+							</div>
 						</div>';
 						echo suite_names();
 						echo '
@@ -1045,11 +1047,11 @@ function main()
 					<h3 id="myModalLabel">Mounted ISOs</h3>
 				</div>
 				<div class="modal-body">
-					<div id="ajaxloader3">
-					  <div class="outer"></div>
-					  <div class="inner"></div>
-					  <p class="text-primary text-center">Loading...</p>
+					<div class="content">
+						<div class="circle"></div>
+						<div class="circle1"></div>
 					</div>
+					<p class="text-primary text-center">Loading...</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-success" id="close" data-dismiss="modal">
