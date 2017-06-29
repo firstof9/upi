@@ -48,11 +48,48 @@ if [ "$OS" = "CentOS" ]; then
 		exit 1;
 	fi
 	
+	if [ -f /tftpboot ]; then
+		echo "Setting up TFTP Server root directory...";
+		cd tftp
+		cp -fR * /tftpboot
+		cd ..
+	else
+		echo "TFTPBoot location not found.";
+		exit 1;
+	fi
 	
-# TODO add rest of release types installers	
+	echo "Copying scripts to /root ...";
+	CP=$(cp -R scripts/ /root)
+	
+	if [ "$CP" -ne 0 ]; then
+		echo "There was an error copying files to /root";
+		exit 1;
+	fi
+
+	echo "Setting service to start on boot...";
+	HTTPD=$(systemctl is-enable httpd)
+	TFTPD=$(systemctl is-enable tftp-server)
+	SQL=$(systemctl is-enable mariadb-server)
+	
+	if [ "$HTTPD" -ne 1 ]; then
+		systemctl enable httpd
+	fi
+	
+	if [ "$TFTPD" -ne 1 ]; then
+		systemctl enable tftp-server
+	fi
+	
+	if [ "$SQL" -ne 1 ]; then
+		systemctl enable mariadb-server
+	fi
 	
 fi
+
+# TODO add rest of release types installers	
 
 # Copy directories to correct file structure
 # Create needed database
 # Import database file structure
+
+echo "Install completed!";
+exit 0;
